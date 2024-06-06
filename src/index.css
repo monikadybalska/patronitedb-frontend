@@ -42,6 +42,7 @@ a:hover {
   color: #d13f40;
   font-weight: 500;
   margin-left: 10px;
+  align-self: center;
 }
 
 .header {

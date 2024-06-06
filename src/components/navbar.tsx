@@ -9,6 +9,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Container from "@mui/material/Container";
 import MenuItem from "@mui/material/MenuItem";
 import { Link } from "@tanstack/react-router";
+import Search from "./search";
 
 const pages = ["home", "charts"];
 
@@ -135,6 +136,7 @@ export default function Navbar() {
                 {page}
               </Link>
             ))}
+            <Search />
           </Box>
         </Toolbar>
       </Container>
