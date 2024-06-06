@@ -63,6 +63,7 @@ export default function Search() {
         value={value}
         onChange={(event: SyntheticEvent<Element, Event>, newValue: string) => {
           setValue(newValue);
+          console.log(event);
         }}
         inputValue={inputValue}
         onInputChange={(event, newInputValue) => {
@@ -75,6 +76,7 @@ export default function Search() {
                   newInputValue
                 ).slice(0, 11)
               );
+          console.log(event);
         }}
         renderInput={(params) => (
           <TextField
