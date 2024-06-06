@@ -18,6 +18,7 @@ import { Route as rootRoute } from './routes/__root'
 
 const ChartsLazyImport = createFileRoute('/charts')()
 const IndexLazyImport = createFileRoute('/')()
+const AuthorsAuthorIdLazyImport = createFileRoute('/authors/$authorId')()
 
 // Create/Update Routes
 
@@ -30,6 +31,13 @@ const IndexLazyRoute = IndexLazyImport.update({
   path: '/',
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
+
+const AuthorsAuthorIdLazyRoute = AuthorsAuthorIdLazyImport.update({
+  path: '/authors/$authorId',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() =>
+  import('./routes/authors/$authorId.lazy').then((d) => d.Route),
+)
 
 // Populate the FileRoutesByPath interface
 
@@ -49,6 +57,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChartsLazyImport
       parentRoute: typeof rootRoute
     }
+    '/authors/$authorId': {
+      id: '/authors/$authorId'
+      path: '/authors/$authorId'
+      fullPath: '/authors/$authorId'
+      preLoaderRoute: typeof AuthorsAuthorIdLazyImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -57,6 +72,7 @@ declare module '@tanstack/react-router' {
 export const routeTree = rootRoute.addChildren({
   IndexLazyRoute,
   ChartsLazyRoute,
+  AuthorsAuthorIdLazyRoute,
 })
 
 /* prettier-ignore-end */
@@ -68,7 +84,8 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/charts"
+        "/charts",
+        "/authors/$authorId"
       ]
     },
     "/": {
@@ -76,6 +93,9 @@ export const routeTree = rootRoute.addChildren({
     },
     "/charts": {
       "filePath": "charts.lazy.tsx"
+    },
+    "/authors/$authorId": {
+      "filePath": "authors/$authorId.lazy.tsx"
     }
   }
 }
