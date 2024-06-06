@@ -10,7 +10,7 @@ function Index() {
   return (
     <>
       <HomepageHero
-        title="Database of Patronite subscriptions"
+        title="Test"
         subtitle="This third-party website gives you better insight into Patronite and
         everything in its database."
       />
