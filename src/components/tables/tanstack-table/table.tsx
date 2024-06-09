@@ -19,7 +19,9 @@ import { useQuery } from "@tanstack/react-query";
 
 import { useState, useMemo } from "react";
 
-import { fetchAllCategories } from "../../../../lib/api";
+// import { fetchAllCategories } from "../../../../lib/api";
+
+import Checkboxes from "./checkboxes";
 
 declare module "@tanstack/react-table" {
   // eslint-disable-next-line
@@ -251,23 +253,23 @@ function Filter({ column }: { column: Column<Author, unknown> }) {
   const { filterVariant } = column.columnDef.meta ?? {};
   console.log(columnFilterValue);
 
-  const {
-    isPending,
-    isError,
-    data: categories,
-    error,
-  } = useQuery({
-    queryKey: ["categories"],
-    queryFn: fetchAllCategories,
-  });
+  // const {
+  //   isPending,
+  //   isError,
+  //   data: categories,
+  //   error,
+  // } = useQuery({
+  //   queryKey: ["categories"],
+  //   queryFn: fetchAllCategories,
+  // });
 
-  if (isPending) {
-    return <span>Loading...</span>;
-  }
+  // if (isPending) {
+  //   return <span>Loading...</span>;
+  // }
 
-  if (isError) {
-    return <span>Error: {error.message}</span>;
-  }
+  // if (isError) {
+  //   return <span>Error: {error.message}</span>;
+  // }
 
   return filterVariant === "range" ? (
     <div>
@@ -294,25 +296,26 @@ function Filter({ column }: { column: Column<Author, unknown> }) {
       <div className="h-1" />
     </div>
   ) : filterVariant === "select" ? (
-    <select
-      onChange={(e) =>
-        column.setFilterValue((current: string[] | undefined) => {
-          if (current) {
-            return current.includes(e.target.value)
-              ? current.toSpliced(current.indexOf(e.target.value), 1)
-              : [...current, e.target.value];
-          } else return [e.target.value];
-        })
-      }
-      value={columnFilterValue?.toString().split(", ")}
-      multiple
-    >
-      <option value="">All</option>
-      {categories?.map((category) => (
-        <option value={category}>{category}</option>
-      ))}
-    </select>
+    <Checkboxes column={column} />
   ) : (
+    // <select
+    //   onChange={(e) =>
+    //     column.setFilterValue((current: string[] | undefined) => {
+    //       if (current) {
+    //         return current.includes(e.target.value)
+    //           ? current.toSpliced(current.indexOf(e.target.value), 1)
+    //           : [...current, e.target.value];
+    //       } else return [e.target.value];
+    //     })
+    //   }
+    //   value={columnFilterValue?.toString().split(", ")}
+    //   multiple
+    // >
+    //   <option value="">All</option>
+    //   {categories?.map((category) => (
+    //     <option value={category}>{category}</option>
+    //   ))}
+    // </select>
     <DebouncedInput
       className="w-36 border shadow rounded"
       onChange={(value) => column.setFilterValue(value)}
