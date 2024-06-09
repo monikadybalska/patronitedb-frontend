@@ -28,3 +28,13 @@ export async function fetchAllAuthors(): Promise<
   }
   return response.json();
 }
+
+export async function fetchAllCategories(): Promise<string[]> {
+  const response = await fetch(
+    "https://j1xfrdkw06.execute-api.eu-north-1.amazonaws.com/prod/metadata/tags"
+  );
+  if (!response.ok) {
+    throw new Error("Network response error");
+  }
+  return response.json();
+}

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import Header from "../../components/header";
 
 export const Route = createFileRoute("/authors/$authorId")({
   component: AuthorComponent,
@@ -6,5 +7,5 @@ export const Route = createFileRoute("/authors/$authorId")({
 
 function AuthorComponent() {
   const { authorId } = Route.useParams();
-  return <div>Hello /authors/{authorId}!</div>;
+  return <Header title={authorId}></Header>;
 }

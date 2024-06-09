@@ -13,18 +13,21 @@ import { useQuery } from "@tanstack/react-query";
 import { Author, Order } from "../../../../lib/types";
 import { getComparator, stableSort } from "../../../../lib/utils";
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
+import Filters from "./filters";
 
 export default function EnhancedTable({ title }: { title: string }) {
-  const [order, setOrder] = React.useState<Order>("desc");
-  const [orderBy, setOrderBy] = React.useState<keyof Author>("total_revenue");
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [order, setOrder] = useState<Order>("desc");
+  const [orderBy, setOrderBy] = useState<keyof Author>("total_revenue");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [filterListOpen, setFilterListOpen] = useState(false);
 
   const { isPending, isError, data, error } = useQuery({
     queryKey: ["chart"],
     queryFn: async (): Promise<Author[]> => {
       const response = await fetch(
-        `https://j1xfrdkw06.execute-api.eu-north-1.amazonaws.com/prod/top_authors?criteria=total_revenue&offset=0&limit=10`
+        `https://j1xfrdkw06.execute-api.eu-north-1.amazonaws.com/prod/top_authors?criteria=total_revenue&offset=0&limit=100`
       );
       if (!response.ok) {
         throw new Error("Network response error");
@@ -55,7 +58,7 @@ export default function EnhancedTable({ title }: { title: string }) {
     setPage(0);
   };
 
-  const rows = data || [];
+  const rows = data?.slice() || [];
 
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
@@ -93,7 +96,12 @@ export default function EnhancedTable({ title }: { title: string }) {
           boxSizing: "border-box",
         }}
       >
-        <EnhancedTableToolbar title={title} />
+        <EnhancedTableToolbar
+          title={title}
+          filterListOpen={filterListOpen}
+          setFilterListOpen={setFilterListOpen}
+        />
+        <Filters filterListOpen={filterListOpen} />
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}

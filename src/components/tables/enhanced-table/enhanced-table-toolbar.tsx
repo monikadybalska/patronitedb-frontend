@@ -3,8 +3,13 @@ import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import FilterListIcon from "@mui/icons-material/FilterList";
+import React from "react";
 
-export default function EnhancedTableToolbar(props: { title: string }) {
+export default function EnhancedTableToolbar(props: {
+  title: string;
+  filterListOpen: boolean;
+  setFilterListOpen: React.Dispatch<boolean>;
+}) {
   return (
     <Toolbar
       sx={{
@@ -21,7 +26,7 @@ export default function EnhancedTableToolbar(props: { title: string }) {
         {props.title}
       </Typography>
       <Tooltip title="Filter list">
-        <IconButton>
+        <IconButton onClick={() => props.setFilterListOpen(!props.filterListOpen)}>
           <FilterListIcon />
         </IconButton>
       </Tooltip>

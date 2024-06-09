@@ -72,6 +72,20 @@ section {
   gap: 3rem;
 }
 
+.filters {
+  display: flex;
+  padding-left: 16px;
+}
+
+.filter-header {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.hidden {
+  display: none;
+}
+
 .row-link {
   position: absolute;
   left: 0;
