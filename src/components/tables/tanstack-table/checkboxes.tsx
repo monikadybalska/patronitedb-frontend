@@ -8,9 +8,6 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchAllCategories } from "../../../../lib/api";
 import Checkbox from "@mui/material/Checkbox";
 import { SelectChangeEvent } from "@mui/material/Select";
-import { useMemo } from "react";
-import { Column } from "@tanstack/react-table";
-import { Author } from "../../../../lib/types";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -24,26 +21,23 @@ const MenuProps = {
 };
 
 export default function Checkboxes({
-  column,
+  value,
+  onChange,
 }: {
-  column: Column<Author, unknown>;
+  value: string[];
+  onChange: (e: SelectChangeEvent<string[]>) => void;
 }) {
-  const filterValue = column.getFilterValue();
+  //   const [personName, setPersonName] = React.useState<string[]>([]);
 
-  function isStringArray(array: unknown): array is string[] {
-    return array !== undefined;
-  }
-
-  const categoryNames: string[] | undefined = useMemo(() => {
-    return isStringArray(filterValue) ? filterValue : [];
-  }, [filterValue]);
-
-  const handleChange = (event: SelectChangeEvent<string[]>) => {
-    const {
-      target: { value },
-    } = event;
-    column.setFilterValue(typeof value === "string" ? value.split(",") : value);
-  };
+  //   const handleChange = (event: SelectChangeEvent<typeof personName>) => {
+  //     const {
+  //       target: { value },
+  //     } = event;
+  //     setPersonName(
+  //       // On autofill we get a stringified value.
+  //       typeof value === "string" ? value.split(",") : value
+  //     );
+  //   };
 
   const {
     isPending,
@@ -65,24 +59,25 @@ export default function Checkboxes({
 
   return (
     <div>
-      <FormControl sx={{ width: 300 }}>
+      <FormControl sx={{ m: 1, width: 300 }}>
         <InputLabel id="demo-multiple-checkbox-label">Tag</InputLabel>
         <Select
           labelId="demo-multiple-checkbox-label"
           id="demo-multiple-checkbox"
           multiple
-          value={categoryNames}
-          onChange={handleChange}
+          value={value}
+          onChange={onChange}
           input={<OutlinedInput label="Tag" />}
           renderValue={(selected) => selected.join(", ")}
           MenuProps={MenuProps}
-          sx={{ textAlign: "start" }}
         >
+          {/* <option value="">All</option> */}
           {categories?.map((category) => (
             <MenuItem key={category} value={category}>
-              <Checkbox checked={categoryNames.indexOf(category) > -1} />
+              <Checkbox checked={value.includes(category)} />
               <ListItemText primary={category} />
             </MenuItem>
+            // <option value={category}>{category}</option>
           ))}
         </Select>
       </FormControl>
