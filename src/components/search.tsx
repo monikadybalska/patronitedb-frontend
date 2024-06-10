@@ -3,7 +3,7 @@ import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAllAuthors } from "../../lib/api";
-import React, { useState } from "react";
+import { useState } from "react";
 import { matchSorter } from "match-sorter";
 import { useNavigate } from "@tanstack/react-router";
 import { SyntheticEvent } from "react";
@@ -11,7 +11,7 @@ import SearchIcon from "@mui/icons-material/Search";
 
 export default function Search() {
   const navigate = useNavigate();
-  const [value, setValue] = React.useState("");
+  const [value, setValue] = useState("");
   const [inputValue, setInputValue] = useState("");
   const [options, setOptions] = useState<readonly string[]>([]);
 
@@ -46,6 +46,8 @@ export default function Search() {
       // @ts-expect-error: Missing type definitions in Material UI
       e.defaultMuiPrevented = true; // eslint-disable-line
       navigate({ to: "/authors/$authorId", params: { authorId } });
+      setInputValue("");
+      setValue("");
     }
   };
 
@@ -62,7 +64,10 @@ export default function Search() {
         onKeyDown={handleSubmit}
         value={value}
         onChange={(event: SyntheticEvent<Element, Event>, newValue: string) => {
-          setValue(newValue);
+          const authorId = newValue;
+          navigate({ to: "/authors/$authorId", params: { authorId } });
+          setInputValue("");
+          setValue("");
           console.log(event);
         }}
         inputValue={inputValue}
