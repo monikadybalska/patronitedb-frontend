@@ -1,7 +1,4 @@
-import React from "react";
-
 import {
-  Column,
   ColumnDef,
   ColumnFiltersState,
   RowData,
@@ -13,13 +10,13 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
+import Filter from "./filter";
+
 import { Author } from "../../../../lib/types";
 
 import { useQuery } from "@tanstack/react-query";
 
 import { useState, useMemo } from "react";
-
-import { fetchAllCategories } from "../../../../lib/api";
 
 declare module "@tanstack/react-table" {
   // eslint-disable-next-line
@@ -28,8 +25,9 @@ declare module "@tanstack/react-table" {
   }
 }
 
-export default function TanstackTable() {
+export default function Table() {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  console.log("rerender");
 
   const columns = useMemo<ColumnDef<Author, string | number | string[]>[]>(
     () => [
@@ -93,10 +91,10 @@ export default function TanstackTable() {
     },
   });
 
-  const data = serverData ?? [];
+  const data = useMemo(() => serverData ?? [], [serverData]);
 
   const table = useReactTable({
-    data,
+    data: data,
     columns,
     filterFns: {},
     state: {
@@ -104,7 +102,7 @@ export default function TanstackTable() {
     },
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(), //client side filtering
+    getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     debugTable: true,
@@ -243,116 +241,5 @@ export default function TanstackTable() {
         )}
       </pre> */}
     </div>
-  );
-}
-
-function Filter({ column }: { column: Column<Author, unknown> }) {
-  const columnFilterValue = column.getFilterValue();
-  const { filterVariant } = column.columnDef.meta ?? {};
-  console.log(columnFilterValue);
-
-  const {
-    isPending,
-    isError,
-    data: categories,
-    error,
-  } = useQuery({
-    queryKey: ["categories"],
-    queryFn: fetchAllCategories,
-  });
-
-  if (isPending) {
-    return <span>Loading...</span>;
-  }
-
-  if (isError) {
-    return <span>Error: {error.message}</span>;
-  }
-
-  return filterVariant === "range" ? (
-    <div>
-      <div className="flex space-x-2">
-        <DebouncedInput
-          type="number"
-          value={(columnFilterValue as [number, number])?.[0] ?? ""}
-          onChange={(value) =>
-            column.setFilterValue((old: [number, number]) => [value, old?.[1]])
-          }
-          placeholder={`Min`}
-          className="w-24 border shadow rounded"
-        />
-        <DebouncedInput
-          type="number"
-          value={(columnFilterValue as [number, number])?.[1] ?? ""}
-          onChange={(value) =>
-            column.setFilterValue((old: [number, number]) => [old?.[0], value])
-          }
-          placeholder={`Max`}
-          className="w-24 border shadow rounded"
-        />
-      </div>
-      <div className="h-1" />
-    </div>
-  ) : filterVariant === "select" ? (
-    <select
-      onChange={(e) =>
-        column.setFilterValue((current: string[] | undefined) => {
-          if (current) {
-            return current.includes(e.target.value)
-              ? current.toSpliced(current.indexOf(e.target.value), 1)
-              : [...current, e.target.value];
-          } else return [e.target.value];
-        })
-      }
-      value={columnFilterValue?.toString().split(", ")}
-      multiple
-    >
-      <option value="">All</option>
-      {categories?.map((category) => (
-        <option value={category}>{category}</option>
-      ))}
-    </select>
-  ) : (
-    <DebouncedInput
-      className="w-36 border shadow rounded"
-      onChange={(value) => column.setFilterValue(value)}
-      placeholder={`Search...`}
-      type="text"
-      value={(columnFilterValue ?? "") as string}
-    />
-  );
-}
-
-// A typical debounced input react component
-function DebouncedInput({
-  value: initialValue,
-  onChange,
-  debounce = 500,
-  ...props
-}: {
-  value: string | number;
-  onChange: (value: string | number) => void;
-  debounce?: number;
-} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange">) {
-  const [value, setValue] = React.useState(initialValue);
-
-  React.useEffect(() => {
-    setValue(initialValue);
-  }, [initialValue]);
-
-  React.useEffect(() => {
-    const timeout = setTimeout(() => {
-      onChange(value);
-    }, debounce);
-
-    return () => clearTimeout(timeout);
-  }, [value, debounce, onChange]);
-
-  return (
-    <input
-      {...props}
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
-    />
   );
 }
