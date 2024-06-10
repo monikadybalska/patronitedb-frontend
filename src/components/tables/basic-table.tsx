@@ -8,6 +8,7 @@ import Paper from "@mui/material/Paper";
 import { useQuery } from "@tanstack/react-query";
 import { Author } from "../../../lib/types";
 import { Link } from "@tanstack/react-router";
+import { East } from "@mui/icons-material";
 
 export default function BasicTable({
   title,
@@ -50,7 +51,16 @@ export default function BasicTable({
         <TableHead>
           <TableRow>
             <TableCell sx={{ fontSize: "1.5rem", color: "text.secondary" }}>
-              {title}
+              <Link
+                to="/charts"
+                search={{
+                  sortBy: criteria,
+                }}
+                style={{ display: "flex" }}
+              >
+                {title}
+                <East sx={{ pl: 1 }} />
+              </Link>
             </TableCell>
             <TableCell align="right">Patrons total</TableCell>
             <TableCell align="right">Monthly revenue</TableCell>

@@ -10,11 +10,14 @@ import {
   MaterialReactTable,
   useMaterialReactTable,
   type MRT_ColumnDef,
+  MRT_ShowHideColumnsButton,
+  MRT_ToggleFiltersButton,
+  MRT_ToggleGlobalFilterButton,
 } from "material-react-table";
 
 import { Link } from "@tanstack/react-router";
 
-export default function EnhancedTable() {
+export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
   console.log("rerender");
 
   const { data: categories } = useQuery({
@@ -102,7 +105,6 @@ export default function EnhancedTable() {
   const table = useMaterialReactTable({
     columns,
     data,
-    initialState: { showColumnFilters: true },
     enableFacetedValues: true,
     muiTableBodyCellProps: ({ column }) => {
       if (column.id === "name") {
@@ -116,6 +118,16 @@ export default function EnhancedTable() {
           },
         };
       } else return { sx: {} };
+    },
+    renderToolbarInternalActions: ({ table }) => (
+      <>
+        <MRT_ToggleGlobalFilterButton table={table} />
+        <MRT_ToggleFiltersButton table={table} />
+        <MRT_ShowHideColumnsButton table={table} />
+      </>
+    ),
+    initialState: {
+      sorting: sortBy ? [{ id: sortBy, desc: true }] : [],
     },
   });
 
