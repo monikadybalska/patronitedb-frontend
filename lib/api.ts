@@ -17,6 +17,13 @@ export async function fetchMostSubscribedAuthors(): Promise<Author[] | null> {
   return response.json();
 }
 
+export async function fetchAllAuthorsData(): Promise<Author[]> {
+  const response = await fetch(
+    "https://j1xfrdkw06.execute-api.eu-north-1.amazonaws.com/prod/top_authors"
+  );
+  return response.json();
+}
+
 export async function fetchAllAuthors(): Promise<
   Pick<Author, "name" | "url">[]
 > {

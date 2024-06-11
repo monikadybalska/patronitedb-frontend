@@ -20,7 +20,6 @@ const Chart = function () {
 
 export const Route = createFileRoute("/charts")({
   validateSearch: (search: Record<string, unknown>): ChartsSearch => {
-    // validate and parse the search params into a typed state
     return {
       sortBy: (search.sortBy as string) || "",
     };

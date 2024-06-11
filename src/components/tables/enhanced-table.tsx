@@ -1,10 +1,10 @@
 import { Author } from "../../../lib/types";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 
-import { useMemo } from "react";
+import { useState, useMemo } from "react";
 
-import { fetchAllCategories } from "../../../lib/api";
+import { fetchAllAuthors, fetchAllCategories } from "../../../lib/api";
 
 import {
   MaterialReactTable,
@@ -13,11 +13,32 @@ import {
   MRT_ShowHideColumnsButton,
   MRT_ToggleFiltersButton,
   MRT_ToggleGlobalFilterButton,
+  MRT_PaginationState,
+  // MRT_SortingState,
+  // MRT_ColumnFiltersState,
 } from "material-react-table";
 
 import { Link } from "@tanstack/react-router";
+import Pagination from "./pagination";
+
+export type AuthorsDataAPIResponse = {
+  data: Array<Author>;
+
+  meta: {
+    totalRowCount: number;
+  };
+};
 
 export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
+  const [pagination, setPagination] = useState<MRT_PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  // const [sorting, setSorting] = useState<MRT_SortingState>([]);
+  // const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
+  //   []
+  // );
+
   console.log("rerender");
 
   const { data: categories } = useQuery({
@@ -87,24 +108,86 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
     [categories]
   );
 
-  const { data: serverData } = useQuery({
-    queryKey: ["chart"],
-    queryFn: async (): Promise<Author[]> => {
-      const response = await fetch(
-        `https://j1xfrdkw06.execute-api.eu-north-1.amazonaws.com/prod/top_authors?criteria=total_revenue&offset=0&limit=1000`
+  const {
+    data: serverData,
+    error,
+    fetchNextPage,
+    fetchPreviousPage,
+    // hasNextPage,
+    // isFetching,
+    // isFetchingNextPage,
+    status,
+  } = useInfiniteQuery<AuthorsDataAPIResponse>({
+    queryKey: [
+      "authorsData",
+      // pagination.pageIndex,
+      pagination.pageSize,
+      // sorting,
+      // sorting[0],
+    ],
+    queryFn: async ({ pageParam }) => {
+      const totalRowCount = await fetchAllAuthors();
+
+      const url = new URL(
+        "/prod/top_authors",
+        "https://j1xfrdkw06.execute-api.eu-north-1.amazonaws.com"
       );
-      if (!response.ok) {
-        throw new Error("Network response error");
+      url.searchParams.set(
+        "offset",
+        `${(pageParam as number) * pagination.pageSize}`
+      );
+      url.searchParams.set("limit", `${pagination.pageSize}`);
+
+      const response = await fetch(url.href);
+
+      const json = {
+        data: await response.json(),
+        meta: {
+          totalRowCount: totalRowCount.length,
+        },
+      } as AuthorsDataAPIResponse;
+
+      return json;
+    },
+    initialPageParam: 0,
+    // @ts-expect-error: unused props
+    getNextPageParam: (lastPage, allPages, lastPageParam) => {
+      if (lastPage.data.length === 0) {
+        return undefined;
       }
-      return response.json();
+      return typeof lastPageParam === "number" ? lastPageParam + 1 : undefined;
+    },
+    // @ts-expect-error: unused props
+    getPreviousPageParam: (firstPage, allPages, firstPageParam) => {
+      if (typeof firstPageParam === "number") {
+        if (firstPageParam <= 1) {
+          return undefined;
+        }
+        return firstPageParam - 1;
+      }
+      return undefined;
     },
   });
 
-  const data = useMemo(() => serverData ?? [], [serverData]);
+  const flatData = useMemo(
+    () =>
+      serverData?.pages
+        .flatMap((page) => page.data)
+        .slice(
+          pagination.pageIndex * pagination.pageSize,
+          pagination.pageIndex * pagination.pageSize + pagination.pageSize
+        ) ?? [],
+    [serverData, pagination.pageIndex, pagination.pageSize]
+  );
+
+  const rowCount = useMemo(
+    () => serverData?.pages?.[0]?.meta?.totalRowCount ?? 0,
+    [serverData]
+  );
 
   const table = useMaterialReactTable({
     columns,
-    data,
+    data: flatData,
     enableFacetedValues: true,
     muiTableBodyCellProps: ({ column }) => {
       if (column.id === "name") {
@@ -129,7 +212,34 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
     initialState: {
       sorting: sortBy ? [{ id: sortBy, desc: true }] : [],
     },
+    state: {
+      pagination,
+      // sorting,
+      // columnFilters,
+    },
+    // manualFiltering: true,
+    manualPagination: true,
+    // manualSorting: true,
+    onPaginationChange: setPagination,
+    // onSortingChange: setSorting,
+    // onColumnFiltersChange: setColumnFilters,
+    rowCount,
+    renderBottomToolbar: () => (
+      <Pagination
+        pagination={pagination}
+        setPagination={setPagination}
+        fetchNextPage={fetchNextPage}
+        fetchPreviousPage={fetchPreviousPage}
+        rowCount={rowCount}
+      />
+    ),
   });
 
-  return <MaterialReactTable table={table} />;
+  return status === "pending" ? (
+    <p>Loading...</p>
+  ) : status === "error" ? (
+    <p>Error: {error.message}</p>
+  ) : (
+    <MaterialReactTable table={table} />
+  );
 }
