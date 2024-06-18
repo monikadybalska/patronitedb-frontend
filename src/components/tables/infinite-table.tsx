@@ -2,13 +2,9 @@ import { Author } from "../../../lib/types";
 
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 
-import { useState, useMemo } from "react";
+import { useRef, useState, useMemo, useEffect, useCallback } from "react";
 
-import {
-  fetchAllCategories,
-  fetchAllAuthorsData,
-  fetchNumberofAuthors,
-} from "../../../lib/api";
+import { fetchAllAuthors, fetchAllCategories, fetchAllAuthorsData } from "../../../lib/api";
 
 import {
   MaterialReactTable,
@@ -17,13 +13,12 @@ import {
   MRT_ShowHideColumnsButton,
   MRT_ToggleFiltersButton,
   MRT_ToggleGlobalFilterButton,
-  MRT_PaginationState,
   MRT_SortingState,
   MRT_ColumnFiltersState,
+  MRT_RowVirtualizer,
 } from "material-react-table";
 
 import { Link } from "@tanstack/react-router";
-import Pagination from "./pagination";
 
 export type AuthorsDataAPIResponse = {
   data: Array<Author>;
@@ -33,15 +28,15 @@ export type AuthorsDataAPIResponse = {
   };
 };
 
-export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
-  console.log("rerender");
-  const [pagination, setPagination] = useState<MRT_PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
-  const [sorting, setSorting] = useState<MRT_SortingState>(
-    sortBy ? [{ id: sortBy, desc: true }] : []
-  );
+const fetchSize = 10
+
+export default function InfiniteTable({ sortBy }: { sortBy?: string }) {
+  console.log("rerender")
+  const tableContainerRef = useRef<HTMLDivElement>(null); //we can get access to the underlying TableContainer element and react to its scroll events
+
+  const rowVirtualizerInstanceRef = useRef<MRT_RowVirtualizer>(null); //we can get access to the underlying Virtualizer instance and call its scrollToIndex method
+  const [sorting, setSorting] = useState<MRT_SortingState>(sortBy ? [{ id: sortBy, desc: true }] : []);
+  const [globalFilter, setGlobalFilter] = useState<string>();
   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
     []
   );
@@ -101,7 +96,7 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
         Cell: ({ cell }) => cell.getValue().toLocaleString("en-US"),
       },
       {
-        accessorFn: (row) => (row.tags ? row.tags.split(",") : []),
+          accessorFn: (row) => row.tags ? row.tags.split(",") : [],
         id: "tags",
         header: "Tags",
         filterVariant: "multi-select",
@@ -113,74 +108,83 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
     [categories]
   );
 
-  const { data: totalRowCount } = useQuery({
-    queryKey: ["allAuthors"],
-    queryFn: fetchNumberofAuthors,
-  });
-
-  const rowCount = useMemo(() => totalRowCount, [totalRowCount]);
-
   const {
     data: serverData,
     fetchNextPage,
-    fetchPreviousPage,
-    status,
-    isFetching,
-  } = useInfiniteQuery<Author[]>({
+    isError, 
+    isFetching, 
+    isLoading
+  } = useInfiniteQuery<AuthorsDataAPIResponse>({
     queryKey: [
       "authorsData",
-      pagination.pageSize,
       sorting,
       columnFilters,
-      rowCount,
+      globalFilter
     ],
     queryFn: async ({ pageParam }) => {
-      const data = await fetchAllAuthorsData({
-        sorting,
-        pageParam: pageParam as number,
-        pageSize: pagination.pageSize,
-        totalRowCount: rowCount ? rowCount : 0,
-        columnFilters: columnFilters,
-      });
-
-      return data;
+      const totalRowCount = await fetchAllAuthors();
+      return fetchAllAuthorsData({
+        sorting, 
+        pageParam: pageParam as number, 
+        pageSize: fetchSize,
+        totalRowCount: totalRowCount.length, 
+        columnFilters: columnFilters})
     },
-    enabled: !!totalRowCount,
     initialPageParam: 0,
-    // @ts-expect-error: unused props
-    getNextPageParam: (lastPage, allPages, lastPageParam) => {
-      if (lastPage.length === 0) {
-        return undefined;
-      }
-      return typeof lastPageParam === "number" ? lastPageParam + 1 : undefined;
-    },
-    // @ts-expect-error: unused props
-    getPreviousPageParam: (firstPage, allPages, firstPageParam) => {
-      if (typeof firstPageParam === "number") {
-        if (firstPageParam <= 1) {
-          return undefined;
-        }
-        return firstPageParam - 1;
-      }
-      return undefined;
-    },
+    getNextPageParam: (_lastGroup, groups) => groups.length,
+    refetchOnWindowFocus: false,
   });
 
   const flatData = useMemo(
     () =>
       serverData?.pages
-        .flatMap((page) => page)
-        .slice(
-          pagination.pageIndex * pagination.pageSize,
-          pagination.pageIndex * pagination.pageSize + pagination.pageSize
-        ) ?? [],
-    [serverData, pagination.pageIndex, pagination.pageSize]
+        .flatMap((page) => page.data) ?? [],
+    [serverData]
   );
+
+  const rowCount = useMemo(
+    () => serverData?.pages?.[0]?.meta?.totalRowCount ?? 0,
+    [serverData]
+  );
+
+  const totalFetched = flatData.length;
+
+  const fetchMoreOnBottomReached = useCallback(
+    (containerRefElement?: HTMLDivElement | null) => {
+      if (containerRefElement) {
+        const { scrollHeight, scrollTop, clientHeight } = containerRefElement;
+
+        if (
+          scrollHeight - scrollTop - clientHeight < 400 &&
+          !isFetching &&
+          totalFetched < rowCount
+        ) {
+          fetchNextPage();
+        }
+      }
+    },
+    [fetchNextPage, isFetching, totalFetched, rowCount],
+  );
+
+  useEffect(() => {
+    try {
+      rowVirtualizerInstanceRef.current?.scrollToIndex?.(0);
+    } catch (error) {
+      console.error(error);
+    }
+
+  }, [sorting, columnFilters, globalFilter]);
+
+  useEffect(() => {
+    fetchMoreOnBottomReached(tableContainerRef.current);
+  }, [fetchMoreOnBottomReached]);
 
   const table = useMaterialReactTable({
     columns,
     data: flatData,
     enableFacetedValues: true,
+    enablePagination: false,
+    enableRowVirtualization: true,
     muiTableBodyCellProps: ({ column }) => {
       if (column.id === "name") {
         return {
@@ -201,37 +205,33 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
         <MRT_ShowHideColumnsButton table={table} />
       </>
     ),
-    muiToolbarAlertBannerProps:
-      status === "error"
-        ? {
-            color: "error",
-            children: "Error loading data",
-          }
-        : undefined,
-    renderBottomToolbar: () => (
-      <Pagination
-        pagination={pagination}
-        setPagination={setPagination}
-        fetchNextPage={fetchNextPage}
-        fetchPreviousPage={fetchPreviousPage}
-        rowCount={rowCount || 0}
-      />
-    ),
+    initialState: {
+      sorting: sortBy ? [{ id: sortBy, desc: true }] : [],
+    },
     state: {
-      pagination,
-      sorting,
       columnFilters,
-      isLoading: status === "pending" || isFetching,
+      globalFilter,
+      isLoading,
+      showAlertBanner: isError,
       showProgressBars: isFetching,
+      sorting,
     },
     manualFiltering: true,
     manualPagination: true,
     manualSorting: true,
-    onPaginationChange: setPagination,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setGlobalFilter,
+    renderBottomToolbarCustomActions: () => (
+      <div>
+        Fetched {totalFetched} of {rowCount} total rows.
+      </div>
+
+    ),
     rowCount,
+    rowVirtualizerInstanceRef, //get access to the virtualizer instance
+    rowVirtualizerOptions: { overscan: 4 },
   });
 
-  return status === "success" && <MaterialReactTable table={table} />;
+  return <MaterialReactTable table={table} />;
 }

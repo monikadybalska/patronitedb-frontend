@@ -7,7 +7,7 @@ import {
   InfiniteData,
   InfiniteQueryObserverResult,
 } from "@tanstack/react-query";
-import { AuthorsDataAPIResponse } from "./enhanced-table";
+import { Author } from "../../../lib/types";
 
 export default function Pagination({
   pagination,
@@ -21,18 +21,12 @@ export default function Pagination({
   fetchNextPage: (
     options?: FetchNextPageOptions | undefined
   ) => Promise<
-    InfiniteQueryObserverResult<
-      InfiniteData<AuthorsDataAPIResponse, unknown>,
-      Error
-    >
+    InfiniteQueryObserverResult<InfiniteData<Author[], unknown>, Error>
   >;
   fetchPreviousPage: (
     options?: FetchPreviousPageOptions | undefined
   ) => Promise<
-    InfiniteQueryObserverResult<
-      InfiniteData<AuthorsDataAPIResponse, unknown>,
-      Error
-    >
+    InfiniteQueryObserverResult<InfiniteData<Author[], unknown>, Error>
   >;
   rowCount: number;
 }) {
@@ -42,15 +36,15 @@ export default function Pagination({
     newPage: number
   ) => {
     if (newPage < pagination.pageIndex) {
+      fetchPreviousPage();
       setPagination((current) => {
         return { ...current, pageIndex: current.pageIndex - 1 };
       });
-      return fetchPreviousPage();
     } else {
+      fetchNextPage();
       setPagination((current) => {
         return { ...current, pageIndex: current.pageIndex + 1 };
       });
-      return fetchNextPage();
     }
   };
 

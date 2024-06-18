@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import Header from "../components/header";
+// import InfiniteTable from "../components/tables/infinite-table";
 import EnhancedTable from "../components/tables/enhanced-table";
 
 type ChartsSearch = {
