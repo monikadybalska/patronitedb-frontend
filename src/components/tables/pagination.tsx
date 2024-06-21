@@ -14,6 +14,7 @@ export default function Pagination({
   setPagination,
   fetchNextPage,
   fetchPreviousPage,
+  pageParams,
   rowCount,
 }: {
   pagination: PaginationState;
@@ -28,6 +29,7 @@ export default function Pagination({
   ) => Promise<
     InfiniteQueryObserverResult<InfiniteData<Author[], unknown>, Error>
   >;
+  pageParams: number[] | null;
   rowCount: number;
 }) {
   const handleChangePage = (
@@ -36,12 +38,20 @@ export default function Pagination({
     newPage: number
   ) => {
     if (newPage < pagination.pageIndex) {
+      console.log(pagination.pageIndex);
       fetchPreviousPage();
+      console.log(pagination.pageIndex);
       setPagination((current) => {
         return { ...current, pageIndex: current.pageIndex - 1 };
       });
     } else {
-      fetchNextPage();
+      if (
+        pageParams &&
+        pageParams.length > 0 &&
+        newPage > pageParams[pageParams.length - 1]
+      ) {
+        fetchNextPage();
+      }
       setPagination((current) => {
         return { ...current, pageIndex: current.pageIndex + 1 };
       });

@@ -8,6 +8,7 @@ import {
   fetchAllCategories,
   fetchAllAuthorsData,
   fetchNumberofAuthors,
+  fetchMinMax,
 } from "../../../lib/api";
 
 import {
@@ -34,7 +35,6 @@ export type AuthorsDataAPIResponse = {
 };
 
 export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
-  console.log("rerender");
   const [pagination, setPagination] = useState<MRT_PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -49,6 +49,11 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
   const { data: categories } = useQuery({
     queryKey: ["categories"],
     queryFn: fetchAllCategories,
+  });
+
+  const { data: minMax } = useQuery({
+    queryKey: ["minMax"],
+    queryFn: fetchMinMax,
   });
 
   const columns = useMemo<
@@ -84,6 +89,10 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
         id: "number_of_patrons",
         header: "Total patrons",
         filterVariant: "range-slider",
+        muiFilterSliderProps: {
+          min: 0,
+          max: minMax ? minMax["number_of_patrons"] : 0,
+        },
         Cell: ({ cell }) => cell.getValue().toLocaleString("en-US"),
       },
       {
@@ -91,6 +100,10 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
         id: "monthly_revenue",
         header: "Monthly revenue",
         filterVariant: "range-slider",
+        muiFilterSliderProps: {
+          min: 0,
+          max: minMax ? minMax["monthly_revenue"] : 0,
+        },
         Cell: ({ cell }) => cell.getValue().toLocaleString("en-US"),
       },
       {
@@ -98,6 +111,10 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
         id: "total_revenue",
         header: "Total revenue",
         filterVariant: "range-slider",
+        muiFilterSliderProps: {
+          min: 0,
+          max: minMax ? minMax["total_revenue"] : 0,
+        },
         Cell: ({ cell }) => cell.getValue().toLocaleString("en-US"),
       },
       {
@@ -110,12 +127,12 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
         Cell: ({ cell }) => cell.getValue<string[]>().join(", "),
       },
     ],
-    [categories]
+    [categories, minMax]
   );
 
   const { data: totalRowCount } = useQuery({
-    queryKey: ["allAuthors"],
-    queryFn: fetchNumberofAuthors,
+    queryKey: ["allAuthors", columnFilters],
+    queryFn: () => fetchNumberofAuthors({ columnFilters }),
   });
 
   const rowCount = useMemo(() => totalRowCount, [totalRowCount]);
@@ -145,7 +162,7 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
 
       return data;
     },
-    enabled: !!totalRowCount,
+    enabled: !!totalRowCount && !!categories,
     initialPageParam: 0,
     // @ts-expect-error: unused props
     getNextPageParam: (lastPage, allPages, lastPageParam) => {
@@ -166,6 +183,7 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
     },
   });
 
+  console.log("rerender");
   const flatData = useMemo(
     () =>
       serverData?.pages
@@ -173,14 +191,13 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
         .slice(
           pagination.pageIndex * pagination.pageSize,
           pagination.pageIndex * pagination.pageSize + pagination.pageSize
-        ) ?? [],
-    [serverData, pagination.pageIndex, pagination.pageSize]
+        ) || [],
+    [serverData, pagination]
   );
 
   const table = useMaterialReactTable({
     columns,
     data: flatData,
-    enableFacetedValues: true,
     muiTableBodyCellProps: ({ column }) => {
       if (column.id === "name") {
         return {
@@ -214,6 +231,7 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
         setPagination={setPagination}
         fetchNextPage={fetchNextPage}
         fetchPreviousPage={fetchPreviousPage}
+        pageParams={serverData?.pageParams as number[] | null}
         rowCount={rowCount || 0}
       />
     ),
@@ -221,7 +239,6 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
       pagination,
       sorting,
       columnFilters,
-      isLoading: status === "pending" || isFetching,
       showProgressBars: isFetching,
     },
     manualFiltering: true,
@@ -230,6 +247,7 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
     onPaginationChange: setPagination,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
+    autoResetPageIndex: false,
     rowCount,
   });
 
