@@ -45,12 +45,10 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
     []
   );
-
   const { data: categories, isLoading: isLoadingCategories } = useQuery({
     queryKey: ["categories"],
     queryFn: fetchAllCategories,
   });
-
   const { data: minMax, isLoading: isLoadingMinMax } = useQuery({
     queryKey: ["minMax"],
     queryFn: fetchMinMax,
@@ -132,7 +130,9 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
 
   const { data: totalRowCount, isLoading: isLoadingRows } = useQuery({
     queryKey: ["allAuthors", columnFilters],
-    queryFn: () => fetchNumberofAuthors({ columnFilters }),
+    queryFn: () => {
+      return fetchNumberofAuthors({ columnFilters });
+    },
   });
 
   const rowCount = useMemo(() => totalRowCount, [totalRowCount]);
@@ -141,7 +141,6 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
     data: serverData,
     fetchNextPage,
     fetchPreviousPage,
-    status,
     isFetching,
     isLoading,
     isError,
@@ -165,6 +164,7 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
       return data;
     },
     initialPageParam: 0,
+    enabled: !!categories && !!minMax && !!totalRowCount,
     // @ts-expect-error: unused props
     getNextPageParam: (lastPage, allPages, lastPageParam) => {
       if (lastPage.length === 0) {
@@ -219,13 +219,6 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
         <MRT_ShowHideColumnsButton table={table} />
       </>
     ),
-    muiToolbarAlertBannerProps:
-      status === "error"
-        ? {
-            color: "error",
-            children: "Error loading data",
-          }
-        : undefined,
     renderBottomToolbar: () => (
       <Pagination
         pagination={pagination}
@@ -234,6 +227,8 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
         fetchPreviousPage={fetchPreviousPage}
         pageParams={serverData?.pageParams as number[] | null}
         rowCount={rowCount || 0}
+        sorting={sorting}
+        columnFilters={columnFilters}
       />
     ),
     state: {

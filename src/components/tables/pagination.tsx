@@ -1,6 +1,10 @@
 import * as React from "react";
 import TablePagination from "@mui/material/TablePagination";
-import { PaginationState } from "@tanstack/react-table";
+import {
+  ColumnFiltersState,
+  PaginationState,
+  SortingState,
+} from "@tanstack/react-table";
 import {
   FetchNextPageOptions,
   FetchPreviousPageOptions,
@@ -8,14 +12,17 @@ import {
   InfiniteQueryObserverResult,
 } from "@tanstack/react-query";
 import { Author } from "../../../lib/types";
+import { useEffect, memo } from "react";
 
-export default function Pagination({
+const Pagination = memo(function Pagination({
   pagination,
   setPagination,
   fetchNextPage,
   fetchPreviousPage,
   pageParams,
   rowCount,
+  sorting,
+  columnFilters,
 }: {
   pagination: PaginationState;
   setPagination: React.Dispatch<React.SetStateAction<PaginationState>>;
@@ -31,16 +38,22 @@ export default function Pagination({
   >;
   pageParams: number[] | null;
   rowCount: number;
+  sorting: SortingState;
+  columnFilters: ColumnFiltersState;
 }) {
+  useEffect(() => {
+    setPagination((current) => {
+      return { ...current, pageIndex: 0 };
+    });
+  }, [sorting, columnFilters]); // eslint-disable-line
+
   const handleChangePage = (
     // @ts-expect-error: unused prop
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
     if (newPage < pagination.pageIndex) {
-      console.log(pagination.pageIndex);
       fetchPreviousPage();
-      console.log(pagination.pageIndex);
       setPagination((current) => {
         return { ...current, pageIndex: current.pageIndex - 1 };
       });
@@ -68,10 +81,12 @@ export default function Pagination({
     <TablePagination
       component="div"
       count={rowCount}
-      page={pagination.pageIndex}
+      page={!rowCount || rowCount <= 0 ? 0 : pagination.pageIndex}
       onPageChange={handleChangePage}
       rowsPerPage={pagination.pageSize}
       onRowsPerPageChange={handleChangeRowsPerPage}
     />
   );
-}
+});
+
+export default Pagination;

@@ -38,7 +38,6 @@ export async function fetchAllAuthorsData({
   totalRowCount: number;
   columnFilters: ColumnFiltersState;
 }): Promise<Author[]> {
-  console.log(pageParam);
   const filters: Record<string, number[]> = columnFilters.reduce(
     (accumulator, currentValue) =>
       Object.assign(accumulator, { [currentValue.id]: currentValue.value }),
@@ -160,16 +159,15 @@ export async function fetchAllCategories(): Promise<string[]> {
 }
 
 export async function fetchMinMax(): Promise<Record<string, number>> {
-  const response = await fetch("http://127.0.0.1:8000/dev/metadata/min_max")
+  const response = await fetch("http://127.0.0.1:8000/dev/metadata/min_max");
   if (!response.ok) {
     throw new Error("Network response error");
   }
-  const json: Record<string, number>[] = await response.json()
-  console.log(json)
+  const json: Record<string, number>[] = await response.json();
   const object = json.reduce(
     (accumulator, currentValue) =>
       Object.assign(accumulator, { [currentValue.name]: currentValue.max }),
     {}
   );
-  return object
+  return object;
 }
