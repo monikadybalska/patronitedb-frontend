@@ -46,12 +46,12 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
     []
   );
 
-  const { data: categories } = useQuery({
+  const { data: categories, isLoading: isLoadingCategories } = useQuery({
     queryKey: ["categories"],
     queryFn: fetchAllCategories,
   });
 
-  const { data: minMax } = useQuery({
+  const { data: minMax, isLoading: isLoadingMinMax } = useQuery({
     queryKey: ["minMax"],
     queryFn: fetchMinMax,
   });
@@ -130,7 +130,7 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
     [categories, minMax]
   );
 
-  const { data: totalRowCount } = useQuery({
+  const { data: totalRowCount, isLoading: isLoadingRows } = useQuery({
     queryKey: ["allAuthors", columnFilters],
     queryFn: () => fetchNumberofAuthors({ columnFilters }),
   });
@@ -143,6 +143,8 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
     fetchPreviousPage,
     status,
     isFetching,
+    isLoading,
+    isError,
   } = useInfiniteQuery<Author[]>({
     queryKey: [
       "authorsData",
@@ -162,7 +164,6 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
 
       return data;
     },
-    enabled: !!totalRowCount && !!categories,
     initialPageParam: 0,
     // @ts-expect-error: unused props
     getNextPageParam: (lastPage, allPages, lastPageParam) => {
@@ -183,7 +184,6 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
     },
   });
 
-  console.log("rerender");
   const flatData = useMemo(
     () =>
       serverData?.pages
@@ -207,6 +207,7 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
             gap: "1rem",
             padding: 0,
             width: "100%",
+            height: "100px",
           },
         };
       } else return { sx: {} };
@@ -240,6 +241,13 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
       sorting,
       columnFilters,
       showProgressBars: isFetching,
+      isLoading:
+        isFetching ||
+        isLoading ||
+        isLoadingCategories ||
+        isLoadingMinMax ||
+        isLoadingRows,
+      showAlertBanner: isError,
     },
     manualFiltering: true,
     manualPagination: true,
@@ -251,5 +259,5 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
     rowCount,
   });
 
-  return status === "success" && <MaterialReactTable table={table} />;
+  return <MaterialReactTable table={table} />;
 }

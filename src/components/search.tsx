@@ -3,53 +3,48 @@ import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAllAuthors } from "../../lib/api";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { matchSorter } from "match-sorter";
 import { useNavigate } from "@tanstack/react-router";
 import { SyntheticEvent } from "react";
 import SearchIcon from "@mui/icons-material/Search";
+import { Author } from "../../lib/types";
+
+const filterOptions = (
+  options: Pick<Author, "name" | "url">[],
+  { inputValue }: { inputValue: string }
+) => {
+  if (inputValue === "") {
+    return [];
+  }
+  return matchSorter(options, inputValue, { keys: ["name"] }).slice(0, 11);
+};
 
 export default function Search() {
   const navigate = useNavigate();
-  const [value, setValue] = useState("");
-  const [inputValue, setInputValue] = useState("");
-  const [options, setOptions] = useState<readonly string[]>([]);
+  const [open, setOpen] = useState(false);
 
-  const { isPending, isError, data, error } = useQuery({
+  const { isError, isLoading, data, error } = useQuery({
     queryKey: ["authors"],
     queryFn: fetchAllAuthors,
   });
 
-  if (isPending) {
-    return <span>Loading...</span>;
-  }
+  const options = useMemo(() => {
+    return data || [];
+  }, [data]);
+
+  const handleSubmit = (
+    // @ts-expect-error: unused props
+    e: SyntheticEvent<Element, Event>,
+    newValue: NonNullable<string | Pick<Author, "name" | "url">>
+  ) => {
+    const authorId = typeof newValue === "string" ? newValue : newValue.name;
+    navigate({ to: "/authors/$authorId", params: { authorId } });
+  };
 
   if (isError) {
-    return <span>Error: {error.message}</span>;
+    return <span>Error loading search options: {error.message}</span>;
   }
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
-    e.target.value === ""
-      ? setOptions([])
-      : setOptions(
-          matchSorter(
-            data.map((author) => author.name),
-            e.target.value
-          ).slice(0, 11)
-        );
-  };
-
-  const handleSubmit = (e: React.KeyboardEvent) => {
-    const authorId = value;
-    if (e.key === "Enter" && authorId !== "") {
-      // @ts-expect-error: Missing type definitions in Material UI
-      e.defaultMuiPrevented = true; // eslint-disable-line
-      navigate({ to: "/authors/$authorId", params: { authorId } });
-      setInputValue("");
-      setValue("");
-    }
-  };
 
   return (
     <Stack spacing={2} sx={{ width: 300, ml: 2 }}>
@@ -59,35 +54,25 @@ export default function Search() {
         size="small"
         disableClearable
         autoHighlight
-        filterOptions={(x) => x}
+        open={open}
+        onOpen={() => {
+          setOpen(true);
+        }}
+        onClose={() => {
+          setOpen(false);
+        }}
+        loading={isLoading}
         options={options}
-        onKeyDown={handleSubmit}
-        value={value}
-        onChange={(event: SyntheticEvent<Element, Event>, newValue: string) => {
-          const authorId = newValue;
-          navigate({ to: "/authors/$authorId", params: { authorId } });
-          setInputValue("");
-          setValue("");
-          console.log(event);
-        }}
-        inputValue={inputValue}
-        onInputChange={(event, newInputValue) => {
-          setInputValue(newInputValue);
-          newInputValue === ""
-            ? setOptions([])
-            : setOptions(
-                matchSorter(
-                  data.map((author) => author.name),
-                  newInputValue
-                ).slice(0, 11)
-              );
-          console.log(event);
-        }}
+        filterOptions={filterOptions}
+        onChange={handleSubmit}
+        isOptionEqualToValue={(option, value) => option.name === value.name}
+        getOptionLabel={(option) =>
+          typeof option === "string" ? option : option.name
+        }
         renderInput={(params) => (
           <TextField
             {...params}
             label="Search authors..."
-            onChange={handleChange}
             InputProps={{
               ...params.InputProps,
               type: "search",
