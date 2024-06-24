@@ -44,6 +44,8 @@ export async function fetchAllAuthorsData({
     {}
   );
   const url = new URL("/dev/top_authors", "http://127.0.0.1:8000");
+  filters["name"] &&
+    url.searchParams.set("name", `${filters["name"].toString().toLowerCase()}`);
   sorting.length > 0 && url.searchParams.set("criteria", `${sorting[0].id}`);
   sorting.length > 0 &&
     url.searchParams.set("order", sorting[0].desc ? "desc" : "asc");
@@ -112,6 +114,8 @@ export async function fetchNumberofAuthors({
   // const response = await fetch(
   //   "https://j1xfrdkw06.execute-api.eu-north-1.amazonaws.com/prod/metadata/authors"
   // );
+  console.log(filters["name"]);
+  filters["name"] && url.searchParams.set("name", `${filters["name"]}`);
   filters["tags"] &&
     url.searchParams.set("tags", `${filters["tags"].join(",")}`);
   filters["total_revenue"] &&

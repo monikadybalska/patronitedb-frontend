@@ -17,7 +17,6 @@ import {
   type MRT_ColumnDef,
   MRT_ShowHideColumnsButton,
   MRT_ToggleFiltersButton,
-  MRT_ToggleGlobalFilterButton,
   MRT_PaginationState,
   MRT_SortingState,
   MRT_ColumnFiltersState,
@@ -214,7 +213,6 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
     },
     renderToolbarInternalActions: ({ table }) => (
       <>
-        <MRT_ToggleGlobalFilterButton table={table} />
         <MRT_ToggleFiltersButton table={table} />
         <MRT_ShowHideColumnsButton table={table} />
       </>
@@ -231,6 +229,9 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
         columnFilters={columnFilters}
       />
     ),
+    initialState: {
+      showColumnFilters: true,
+    },
     state: {
       pagination,
       sorting,
