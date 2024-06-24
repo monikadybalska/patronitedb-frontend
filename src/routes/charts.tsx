@@ -3,7 +3,7 @@ import Header from "../components/header";
 import EnhancedTable from "../components/tables/enhanced-table";
 
 type ChartsSearch = {
-  sortBy: string;
+  sortBy: string | undefined;
 };
 
 const Chart = function () {
@@ -21,7 +21,7 @@ const Chart = function () {
 export const Route = createFileRoute("/charts")({
   validateSearch: (search: Record<string, unknown>): ChartsSearch => {
     return {
-      sortBy: (search.sortBy as string) || "",
+      sortBy: (search.sortBy as string) || undefined,
     };
   },
   component: Chart,

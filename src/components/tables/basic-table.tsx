@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Author } from "../../../lib/types";
 import { Link } from "@tanstack/react-router";
 import { East } from "@mui/icons-material";
+import BasicTableBodySkeleton from "../skeletons/basic-table-body";
 
 export default function BasicTable({
   title,
@@ -17,7 +18,7 @@ export default function BasicTable({
   title: string;
   criteria: string;
 }) {
-  const { isPending, isError, data, error } = useQuery({
+  const { isPending, isLoading, isError, data, error } = useQuery({
     queryKey: [criteria],
     queryFn: async (): Promise<Author[]> => {
       const response = await fetch(
@@ -29,10 +30,6 @@ export default function BasicTable({
       return response.json();
     },
   });
-
-  if (isPending) {
-    return <span>Loading...</span>;
-  }
 
   if (isError) {
     return <span>Error: {error.message}</span>;
@@ -67,6 +64,7 @@ export default function BasicTable({
           </TableRow>
         </TableHead>
         <TableBody>
+          {(isLoading || isPending) && <BasicTableBodySkeleton />}
           {data?.map((row) => (
             <TableRow
               sx={{
