@@ -1,4 +1,5 @@
 import { ColumnFiltersState, SortingState } from "@tanstack/react-table";
+import { Author } from "./types";
 
 const getURL = (endpoint: string) => {
   return import.meta.env.DEV
@@ -9,22 +10,21 @@ const getURL = (endpoint: string) => {
       );
 };
 
-interface Author {
-  image_url: string;
-  is_recommended: "true" | "false";
-  monthly_revenue: number;
-  name: string;
-  number_of_patrons: number;
-  tags: string;
-  time: number;
-  total_revenue: number;
-  url: string;
-}
-
-export async function fetchMostSubscribedAuthors(): Promise<Author[] | null> {
+export async function fetchTopAuthors(): Promise<Author[] | null> {
   const response = await fetch(
     getURL("top_authors?criteria=number_of_patrons&offset=0&limit=10")
   );
+  if (!response.ok) {
+    throw new Error("Network response error");
+  }
+  return response.json();
+}
+
+export async function fetchTrendingAuthors(): Promise<Author[] | null> {
+  const response = await fetch(getURL("trending_authors"));
+  if (!response.ok) {
+    throw new Error("Network response error");
+  }
   return response.json();
 }
 

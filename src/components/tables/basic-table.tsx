@@ -13,22 +13,18 @@ import BasicTableBodySkeleton from "../skeletons/basic-table-body";
 
 export default function BasicTable({
   title,
-  criteria,
+  columns,
+  query,
+  link,
 }: {
   title: string;
-  criteria: string;
+  columns: { title: string; key: keyof Author }[];
+  query: () => Promise<Author[] | null>;
+  link?: string;
 }) {
   const { isPending, isLoading, isError, data, error } = useQuery({
-    queryKey: [criteria],
-    queryFn: async (): Promise<Author[]> => {
-      const response = await fetch(
-        `https://j1xfrdkw06.execute-api.eu-north-1.amazonaws.com/prod/top_authors?criteria=${criteria}&offset=0&limit=10`
-      );
-      if (!response.ok) {
-        throw new Error("Network response error");
-      }
-      return response.json();
-    },
+    queryKey: [`${query}`],
+    queryFn: query,
   });
 
   if (isError) {
@@ -48,19 +44,20 @@ export default function BasicTable({
         <TableHead>
           <TableRow>
             <TableCell sx={{ fontSize: "1.5rem", color: "text.secondary" }}>
-              <Link
-                to="/charts"
-                search={{
-                  sortBy: criteria,
-                }}
-                style={{ display: "flex" }}
-              >
-                {title}
-                <East sx={{ pl: 1 }} />
-              </Link>
+              {link ? (
+                <Link to={link} style={{ display: "flex" }}>
+                  {title}
+                  <East sx={{ pl: 1 }} />
+                </Link>
+              ) : (
+                <>{title}</>
+              )}
             </TableCell>
-            <TableCell align="right">Patrons total</TableCell>
-            <TableCell align="right">Monthly revenue</TableCell>
+            {columns.map((column) => (
+              <TableCell align="right" key={column.title}>
+                {column.title}
+              </TableCell>
+            ))}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -88,8 +85,11 @@ export default function BasicTable({
                 <img src={row.image_url} className="row-image"></img>
                 <p className="title-cell">{row.name}</p>
               </TableCell>
-              <TableCell align="right">{row.number_of_patrons}</TableCell>
-              <TableCell align="right">{row.monthly_revenue}</TableCell>
+              {columns.map((column, i) => (
+                <TableCell align="right" key={i}>
+                  {row[column.key]}
+                </TableCell>
+              ))}
             </TableRow>
           ))}
         </TableBody>
