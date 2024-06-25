@@ -1,5 +1,14 @@
 import { ColumnFiltersState, SortingState } from "@tanstack/react-table";
 
+const getURL = (endpoint: string) => {
+  return import.meta.env.DEV
+    ? new URL("/dev/" + endpoint, "http://127.0.0.1:8000")
+    : new URL(
+        "/prod/" + endpoint,
+        "https://j1xfrdkw06.execute-api.eu-north-1.amazonaws.com"
+      );
+};
+
 interface Author {
   image_url: string;
   is_recommended: "true" | "false";
@@ -14,17 +23,10 @@ interface Author {
 
 export async function fetchMostSubscribedAuthors(): Promise<Author[] | null> {
   const response = await fetch(
-    "https://j1xfrdkw06.execute-api.eu-north-1.amazonaws.com/prod/top_authors?criteria=number_of_patrons&offset=0&limit=10"
+    getURL("top_authors?criteria=number_of_patrons&offset=0&limit=10")
   );
   return response.json();
 }
-
-// export async function fetchAllAuthorsData(): Promise<Author[]> {
-//   const response = await fetch(
-//     "https://j1xfrdkw06.execute-api.eu-north-1.amazonaws.com/prod/top_authors"
-//   );
-//   return response.json();
-// }
 
 export async function fetchAllAuthorsData({
   sorting,
@@ -43,7 +45,7 @@ export async function fetchAllAuthorsData({
       Object.assign(accumulator, { [currentValue.id]: currentValue.value }),
     {}
   );
-  const url = new URL("/dev/top_authors", "http://127.0.0.1:8000");
+  const url = getURL("top_authors");
   filters["name"] &&
     url.searchParams.set("name", `${filters["name"].toString().toLowerCase()}`);
   sorting.length > 0 && url.searchParams.set("criteria", `${sorting[0].id}`);
@@ -91,9 +93,7 @@ export async function fetchAllAuthorsData({
 export async function fetchAllAuthors(): Promise<
   Pick<Author, "name" | "url">[]
 > {
-  const response = await fetch(
-    "https://j1xfrdkw06.execute-api.eu-north-1.amazonaws.com/prod/metadata/authors"
-  );
+  const response = await fetch(getURL("metadata/authors"));
   if (!response.ok) {
     throw new Error("Network response error");
   }
@@ -110,11 +110,7 @@ export async function fetchNumberofAuthors({
       Object.assign(accumulator, { [currentValue.id]: currentValue.value }),
     {}
   );
-  const url = new URL("/dev/metadata/row_count", "http://127.0.0.1:8000");
-  // const response = await fetch(
-  //   "https://j1xfrdkw06.execute-api.eu-north-1.amazonaws.com/prod/metadata/authors"
-  // );
-  console.log(filters["name"]);
+  const url = getURL("metadata/row_count");
   filters["name"] && url.searchParams.set("name", `${filters["name"]}`);
   filters["tags"] &&
     url.searchParams.set("tags", `${filters["tags"].join(",")}`);
@@ -153,9 +149,7 @@ export async function fetchNumberofAuthors({
 }
 
 export async function fetchAllCategories(): Promise<string[]> {
-  const response = await fetch(
-    "https://j1xfrdkw06.execute-api.eu-north-1.amazonaws.com/prod/metadata/tags"
-  );
+  const response = await fetch(getURL("metadata/tags"));
   if (!response.ok) {
     throw new Error("Network response error");
   }
@@ -163,7 +157,7 @@ export async function fetchAllCategories(): Promise<string[]> {
 }
 
 export async function fetchMinMax(): Promise<Record<string, number>> {
-  const response = await fetch("http://127.0.0.1:8000/dev/metadata/min_max");
+  const response = await fetch(getURL("metadata/min_max"));
   if (!response.ok) {
     throw new Error("Network response error");
   }
