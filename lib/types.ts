@@ -8,6 +8,7 @@ export interface Author {
   time: number;
   total_revenue: number;
   url: string;
+  increase?: number;
 }
 
 export type Order = "asc" | "desc";
