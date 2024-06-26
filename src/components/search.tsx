@@ -66,15 +66,13 @@ export default function Search() {
           const authorId =
             typeof newValue === "string" ? newValue : newValue.name;
           navigate({ to: "/authors/$authorId", params: { authorId } });
+          setInputValue("");
+          setValue({ name: "", url: "" });
         }}
         inputValue={inputValue}
         // @ts-expect-error: unused values
         onInputChange={(event, newInputValue) => {
           setInputValue(newInputValue);
-        }}
-        onBlur={() => {
-          setInputValue("");
-          setValue({ name: "", url: "" });
         }}
         isOptionEqualToValue={(option, value) => option.name === value.name}
         getOptionLabel={(option) =>
