@@ -255,6 +255,7 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
         setPagination={setPagination}
         fetchNextPage={fetchNextPage}
         fetchPreviousPage={fetchPreviousPage}
+        isFetching={isFetching}
         pageParams={serverData?.pageParams as number[] | null}
         rowCount={rowCount || 0}
         sorting={sorting}

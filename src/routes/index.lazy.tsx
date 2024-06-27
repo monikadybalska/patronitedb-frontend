@@ -26,6 +26,8 @@ function Index() {
             query={fetchTopAuthors}
             link="/charts?sortBy=number_of_patrons"
           />
+        </section>
+        <section>
           <BasicTable
             title="Trending Authors"
             columns={[
@@ -34,8 +36,6 @@ function Index() {
             ]}
             query={fetchTrendingAuthors}
           />
-        </section>
-        <section>
           <BasicTable
             title="Highest-Earning Authors"
             columns={[
