@@ -19,6 +19,7 @@ const Pagination = memo(function Pagination({
   setPagination,
   fetchNextPage,
   fetchPreviousPage,
+  isFetching,
   pageParams,
   rowCount,
   sorting,
@@ -36,6 +37,7 @@ const Pagination = memo(function Pagination({
   ) => Promise<
     InfiniteQueryObserverResult<InfiniteData<Author[], unknown>, Error>
   >;
+  isFetching: boolean;
   pageParams: number[] | null;
   rowCount: number;
   sorting: SortingState;
@@ -85,6 +87,7 @@ const Pagination = memo(function Pagination({
       onPageChange={handleChangePage}
       rowsPerPage={pagination.pageSize}
       onRowsPerPageChange={handleChangeRowsPerPage}
+      disabled={isFetching}
     />
   );
 });

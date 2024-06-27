@@ -103,6 +103,7 @@ section {
 
 .title-cell {
   font-weight: 500;
+  margin: 0;
 }
 
 .name-row {
@@ -150,13 +151,29 @@ footer {
   text-align: center;
 }
 
-@media screen and (max-width: 720px) {
+.icon-mobile {
+  display: none;
+}
+
+@media screen and (max-width: 900px) {
+  .icon {
+    display: none;
+  }
+
+  .icon-mobile {
+    display: inline;
+  }
+
   main {
     padding: 0 10px 0 10px;
   }
 
   section {
     flex-direction: column;
+  }
+
+  .row-image {
+    height: 70px;
   }
 
   .footer-nav {
@@ -166,17 +183,5 @@ footer {
 
   .footer-container {
     padding: 0 10px 0 10px;
-  }
-}
-
-@media screen and (max-width: 900px) {
-  .icon {
-    display: none;
-  }
-}
-
-@media screen and (min-width: 900px) {
-  .icon-mobile {
-    display: none;
   }
 }
