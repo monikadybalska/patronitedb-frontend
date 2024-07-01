@@ -67,7 +67,7 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
         Cell: ({ renderedCellValue, row }) => (
           <>
             <Link
-              to={`/authors/${renderedCellValue}`}
+              to={`/authors/${row.original.url.split("/").slice(-1)[0]}`}
               className="row-link"
             ></Link>
             <img src={row.original.image_url} className="row-image" />

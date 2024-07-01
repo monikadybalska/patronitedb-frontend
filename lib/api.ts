@@ -10,6 +10,14 @@ const getURL = (endpoint: string) => {
       );
 };
 
+export async function fetchAuthorById(id: string): Promise<Author[] | null> {
+  const response = await fetch(getURL(`author?id=${id}`));
+  if (!response.ok) {
+    throw new Error("Network response error");
+  }
+  return response.json();
+}
+
 export async function fetchTopAuthors(): Promise<Author[] | null> {
   const response = await fetch(
     getURL("top_authors?criteria=number_of_patrons&offset=0&limit=10")
