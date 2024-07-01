@@ -64,7 +64,9 @@ export default function Search() {
             ? setValue({ name: newValue, url: "" })
             : setValue(newValue);
           const authorId =
-            typeof newValue === "string" ? newValue : newValue.name;
+            typeof newValue === "string"
+              ? newValue
+              : newValue.url.split("/").slice(-1)[0];
           navigate({ to: "/authors/$authorId", params: { authorId } });
           setInputValue("");
           setValue({ name: "", url: "" });

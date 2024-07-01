@@ -37,7 +37,7 @@ export default function Navbar() {
     >
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <img src="patronitedb-logo.svg" className="icon"></img>
+          <img src="/patronitedb-logo.svg" className="icon"></img>
           <Link to="/">
             <Typography
               variant="h6"
@@ -98,7 +98,7 @@ export default function Navbar() {
               ))}
             </Menu>
           </Box>
-          <img src="patronitedb-logo.svg" className="icon-mobile"></img>
+          <img src="/patronitedb-logo.svg" className="icon-mobile"></img>
           <Typography
             variant="h5"
             noWrap

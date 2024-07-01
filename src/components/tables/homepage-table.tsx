@@ -11,7 +11,7 @@ import { Link } from "@tanstack/react-router";
 import { East } from "@mui/icons-material";
 import BasicTableBodySkeleton from "../skeletons/basic-table-body";
 
-export default function BasicTable({
+export default function HomepageTable({
   title,
   columns,
   query,
@@ -81,7 +81,10 @@ export default function BasicTable({
                   padding: 0,
                 }}
               >
-                <Link to={`/authors/${row.name}`} className="row-link"></Link>
+                <Link
+                  to={`/authors/${row.url.split("/").slice(-1)[0]}`}
+                  className="row-link"
+                ></Link>
                 <img src={row.image_url} className="row-image"></img>
                 <p className="title-cell">{row.name}</p>
               </TableCell>
