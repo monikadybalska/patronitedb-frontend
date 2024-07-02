@@ -5,13 +5,21 @@ import {
   type MRT_ColumnDef,
 } from "material-react-table";
 import { Author } from "../../../lib/types";
+import { ColumnFiltersState } from "@tanstack/react-table";
 
 export default function AuthorCriterionTable({
   data,
   criterion,
+  columnFilters,
+  setColumnFilters,
 }: {
   data: Author[];
-  criterion: "number_of_patrons" | "monthly_revenue" | "total_revenue";
+  criterion: keyof Pick<
+    Author,
+    "number_of_patrons" | "monthly_revenue" | "total_revenue"
+  >;
+  columnFilters: ColumnFiltersState;
+  setColumnFilters: React.Dispatch<React.SetStateAction<ColumnFiltersState>>;
 }) {
   const columns = useMemo<MRT_ColumnDef<Author>[]>(
     () => [
@@ -26,58 +34,50 @@ export default function AuthorCriterionTable({
         accessorKey: criterion,
         header: "Total",
         size: 150,
+        filterVariant: "range-slider",
         Cell: ({ cell }) => cell.getValue<number>().toLocaleString("en-US"),
       },
       {
-        accessorFn: (row) => {
-          const prevIndex = data.findIndex((value) => value === row);
-          if (prevIndex > -1 && prevIndex < data.length - 1) {
-            return row[criterion] - data[prevIndex + 1][criterion];
-          } else return "Unknown";
-        },
-        id: "gain",
+        accessorFn: (row) =>
+          row[`${criterion}_gain`] ? row[`${criterion}_gain`] : 0,
+        id: `${criterion}_gain`,
         header: "Gain",
         size: 150,
+        filterVariant: "range-slider",
         Cell: ({ cell }) => {
           const value = cell.getValue<number>();
-          return (
-            <span
-              style={{
-                color: value < 0 ? "red" : value > 0 ? "green" : "",
-              }}
-            >
-              {value > 0
-                ? `+${value.toLocaleString("en-US")}`
-                : value.toLocaleString("en-US")}
-            </span>
-          );
+          if (cell.row.index === data.length - 1) {
+            return "-";
+          } else
+            return (
+              <span
+                style={{
+                  color: value < 0 ? "red" : value > 0 ? "green" : "",
+                }}
+              >
+                {value > 0
+                  ? `+${value.toLocaleString("en-US")}`
+                  : value.toLocaleString("en-US")}
+              </span>
+            );
         },
       },
       {
         accessorFn: (row) => {
-          const prevIndex = data.findIndex((value) => value === row);
-          if (prevIndex > -1 && prevIndex < data.length - 1) {
-            const currentValue = row[criterion];
-            const previousValue = data[prevIndex + 1][criterion];
-            if (currentValue === previousValue) {
-              return 0;
-            } else if (previousValue === 0) {
-              return 100;
-            } else
-              return (
-                ((currentValue - previousValue) / previousValue) *
-                100
-              ).toPrecision(2);
-          } else return "Unknown";
+          const value = row[`${criterion}_gain_percentage`];
+          return value ? parseFloat(value.toFixed(2)) : 0;
         },
-        id: "gain_percentage",
+        id: `${criterion}_gain_percentage`,
         header: "Gain %",
         size: 150,
+        filterVariant: "range-slider",
+        muiFilterSliderProps: {
+          step: 0.01,
+        },
         Cell: ({ cell }) => {
           const value = cell.getValue<number>();
-          // @ts-expect-error: unrecognised getValue property types
-          if (value === "Unknown") {
-            return <span>{value}</span>;
+          if (cell.row.index === data.length - 1) {
+            return "-";
           } else {
             return (
               <span
@@ -94,10 +94,12 @@ export default function AuthorCriterionTable({
     ],
     [data, criterion]
   );
-
   const table = useMaterialReactTable({
     columns,
     data,
+    enableFacetedValues: true,
+    onColumnFiltersChange: setColumnFilters,
+    state: { columnFilters },
   });
 
   return <MaterialReactTable table={table} />;
