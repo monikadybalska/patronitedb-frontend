@@ -31,7 +31,7 @@ function Index() {
               title="Trending Authors"
               columns={[
                 { title: "Patrons total", key: "number_of_patrons" },
-                { title: "Patrons last 7 days", key: "increase" },
+                { title: "7-day gain", key: "gain" },
               ]}
               query={fetchTrendingAuthors}
             />

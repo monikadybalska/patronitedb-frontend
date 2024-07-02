@@ -8,7 +8,7 @@ export interface Author {
   time: number;
   total_revenue: number;
   url: string;
-  increase?: number;
+  gain?: number;
   number_of_patrons_gain: number;
   number_of_patrons_gain_percentage: number | null;
   monthly_revenue_gain: number;
