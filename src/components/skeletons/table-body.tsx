@@ -2,7 +2,7 @@ import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
 import { Skeleton } from "@mui/material";
 
-export default function BasicTableBodySkeleton() {
+export default function TableBodySkeleton() {
   return new Array(10)
     .fill({
       image: <Skeleton variant="rectangular" height={100} width={100} />,

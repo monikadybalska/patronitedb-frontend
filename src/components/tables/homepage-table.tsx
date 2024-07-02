@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Author } from "../../../lib/types";
 import { Link } from "@tanstack/react-router";
 import { East } from "@mui/icons-material";
-import BasicTableBodySkeleton from "../skeletons/basic-table-body";
+import TableBodySkeleton from "../skeletons/table-body";
 
 export default function HomepageTable({
   title,
@@ -61,7 +61,7 @@ export default function HomepageTable({
           </TableRow>
         </TableHead>
         <TableBody>
-          {(isLoading || isPending) && <BasicTableBodySkeleton />}
+          {(isLoading || isPending) && <TableBodySkeleton />}
           {data?.map((row) => (
             <TableRow
               sx={{
