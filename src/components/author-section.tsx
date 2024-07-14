@@ -46,7 +46,9 @@ export default function AuthorSection({
           <AuthorChart
             xAxis={renderedData.map((snapshot) => snapshot.time).reverse()}
             series={renderedData
-              .map((snapshot) => snapshot[criterion])
+              .map((snapshot) =>
+                snapshot[criterion] === -1 ? null : snapshot[criterion]
+              )
               .reverse()}
           />
         </div>

@@ -90,7 +90,7 @@ export default function HomepageTable({
               </TableCell>
               {columns.map((column, i) => (
                 <TableCell align="right" key={i}>
-                  {row[column.key]}
+                  {row[column.key] === -1 ? "Unknown" : row[column.key]}
                 </TableCell>
               ))}
             </TableRow>

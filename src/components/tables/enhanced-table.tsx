@@ -56,7 +56,7 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
   const columns = useMemo<
     MRT_ColumnDef<
       Author,
-      string | number | string[] | { name: string; image: string }
+      string | number | null | string[] | { name: string; image: string }
     >[]
   >(
     () => [
@@ -82,7 +82,8 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
         },
       },
       {
-        accessorFn: (row) => row.number_of_patrons,
+        accessorFn: (row) =>
+          row.number_of_patrons === -1 ? null : row.number_of_patrons,
         id: "number_of_patrons",
         header: "Total patrons",
         filterVariant: "range-slider",
@@ -99,10 +100,14 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
           ],
           step: null,
         },
-        Cell: ({ cell }) => cell.getValue().toLocaleString("en-US"),
+        Cell: ({ cell }) => {
+          const value = cell.getValue();
+          return value === null ? "Unknown" : value.toLocaleString("en-US");
+        },
       },
       {
-        accessorFn: (row) => row.monthly_revenue,
+        accessorFn: (row) =>
+          row.monthly_revenue === -1 ? null : row.monthly_revenue,
         id: "monthly_revenue",
         header: "Monthly revenue",
         filterVariant: "range-slider",
@@ -122,10 +127,14 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
           ],
           step: null,
         },
-        Cell: ({ cell }) => cell.getValue().toLocaleString("en-US"),
+        Cell: ({ cell }) => {
+          const value = cell.getValue();
+          return value === null ? "Unknown" : value.toLocaleString("en-US");
+        },
       },
       {
-        accessorFn: (row) => row.total_revenue,
+        accessorFn: (row) =>
+          row.total_revenue === -1 ? null : row.total_revenue,
         id: "total_revenue",
         header: "Total revenue",
         filterVariant: "range-slider",
@@ -144,7 +153,10 @@ export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
           ],
           step: null,
         },
-        Cell: ({ cell }) => cell.getValue().toLocaleString("en-US"),
+        Cell: ({ cell }) => {
+          const value = cell.getValue();
+          return value === null ? "Unknown" : value.toLocaleString("en-US");
+        },
       },
       {
         accessorFn: (row) => (row.tags ? row.tags.split(",") : []),

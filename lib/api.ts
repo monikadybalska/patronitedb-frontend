@@ -2,9 +2,7 @@ import { ColumnFiltersState, SortingState } from "@tanstack/react-table";
 import { Author } from "./types";
 
 const getURL = (endpoint: string) => {
-  return import.meta.env.DEV
-    ? new URL("/dev/" + endpoint, "http://127.0.0.1:8000")
-    : new URL(
+  return new URL(
         "/prod/" + endpoint,
         "https://j1xfrdkw06.execute-api.eu-north-1.amazonaws.com"
       );
@@ -87,8 +85,6 @@ export async function fetchAllAuthorsData({
       "max_number_of_patrons",
       `${filters["number_of_patrons"][1]}`
     );
-
-  console.log(url.href);
 
   const response = await fetch(url.href);
 

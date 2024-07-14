@@ -5,7 +5,7 @@ export default function AuthorChart({
   series,
 }: {
   xAxis: number[];
-  series: number[];
+  series: (number | null)[];
 }) {
   return (
     <LineChart
@@ -20,10 +20,10 @@ export default function AuthorChart({
           id: "authors",
           data: series,
           color: "#d13f40",
+          connectNulls: true,
         },
       ]}
       height={500}
-    >
-    </LineChart>
+    ></LineChart>
   );
 }
