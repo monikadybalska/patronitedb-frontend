@@ -31,23 +31,31 @@ export default function AuthorCriterionTable({
           new Date(cell.getValue<Date>()).toLocaleDateString(),
       },
       {
-        accessorKey: criterion,
+        accessorFn: (row) => (row[criterion] === -1 ? null : row[criterion]),
+        id: criterion,
         header: "Total",
         size: 150,
         filterVariant: "range-slider",
-        Cell: ({ cell }) => cell.getValue<number>().toLocaleString("en-US"),
+        Cell: ({ cell }) =>
+          cell.getValue<number>() !== null
+            ? cell.getValue<number>().toLocaleString("en-US")
+            : "Unknown",
       },
       {
-        accessorFn: (row) =>
-          row[`${criterion}_gain`] ? row[`${criterion}_gain`] : 0,
+        accessorFn: (row) => {
+          if (row[criterion] === -1) {
+            return null;
+          }
+          return row[`${criterion}_gain`] ? row[`${criterion}_gain`] : 0;
+        },
         id: `${criterion}_gain`,
         header: "Gain",
         size: 150,
         filterVariant: "range-slider",
         Cell: ({ cell }) => {
           const value = cell.getValue<number>();
-          if (cell.row.index === data.length - 1) {
-            return "-";
+          if (cell.row.index === data.length - 1 || value === null) {
+            return "Unknown";
           } else
             return (
               <span
@@ -64,6 +72,9 @@ export default function AuthorCriterionTable({
       },
       {
         accessorFn: (row) => {
+          if (row[criterion] === -1) {
+            return null;
+          }
           const value = row[`${criterion}_gain_percentage`];
           return value ? parseFloat(value.toFixed(2)) : 0;
         },
@@ -76,8 +87,8 @@ export default function AuthorCriterionTable({
         },
         Cell: ({ cell }) => {
           const value = cell.getValue<number>();
-          if (cell.row.index === data.length - 1) {
-            return "-";
+          if (cell.row.index === data.length - 1 || value === null) {
+            return "Unknown";
           } else {
             return (
               <span
