@@ -1,4 +1,8 @@
-import { fetchAuthorById } from "../../lib/api";
+import {
+  fetchAuthorById,
+  fetchPatronsGainById,
+  fetchMonthlyRevenueGainById,
+} from "../../lib/api";
 import { useQuery } from "@tanstack/react-query";
 import AuthorSection from "./author-section";
 import AuthorTable from "./tables/author-table";
@@ -6,7 +10,7 @@ import AuthorPageSkeleton from "./skeletons/author-page";
 
 export default function AuthorPage({ id }: { id: string }) {
   const { isLoading, isError, data, error } = useQuery({
-    queryKey: [id],
+    queryKey: ["author overview", id],
     queryFn: () => fetchAuthorById(`https://patronite.pl/${id}`),
   });
 
@@ -31,18 +35,15 @@ export default function AuthorPage({ id }: { id: string }) {
           </section>
           <AuthorSection
             title="Number of patrons"
-            data={data}
+            id={id}
+            query={fetchPatronsGainById}
             criterion="number_of_patrons"
           />
           <AuthorSection
             title="Monthly revenue"
-            data={data}
+            id={id}
+            query={fetchMonthlyRevenueGainById}
             criterion="monthly_revenue"
-          />
-          <AuthorSection
-            title="Total revenue"
-            data={data}
-            criterion="total_revenue"
           />
         </div>
       </>
