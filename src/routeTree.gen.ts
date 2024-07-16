@@ -13,7 +13,7 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as ChartsImport } from './routes/charts'
+import { Route as RankingsImport } from './routes/rankings'
 
 // Create Virtual Routes
 
@@ -22,8 +22,8 @@ const AuthorsAuthorIdLazyImport = createFileRoute('/authors/$authorId')()
 
 // Create/Update Routes
 
-const ChartsRoute = ChartsImport.update({
-  path: '/charts',
+const RankingsRoute = RankingsImport.update({
+  path: '/rankings',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -50,11 +50,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexLazyImport
       parentRoute: typeof rootRoute
     }
-    '/charts': {
-      id: '/charts'
-      path: '/charts'
-      fullPath: '/charts'
-      preLoaderRoute: typeof ChartsImport
+    '/rankings': {
+      id: '/rankings'
+      path: '/rankings'
+      fullPath: '/rankings'
+      preLoaderRoute: typeof RankingsImport
       parentRoute: typeof rootRoute
     }
     '/authors/$authorId': {
@@ -71,7 +71,7 @@ declare module '@tanstack/react-router' {
 
 export const routeTree = rootRoute.addChildren({
   IndexLazyRoute,
-  ChartsRoute,
+  RankingsRoute,
   AuthorsAuthorIdLazyRoute,
 })
 
@@ -84,15 +84,15 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/charts",
+        "/rankings",
         "/authors/$authorId"
       ]
     },
     "/": {
       "filePath": "index.lazy.tsx"
     },
-    "/charts": {
-      "filePath": "charts.tsx"
+    "/rankings": {
+      "filePath": "rankings.tsx"
     },
     "/authors/$authorId": {
       "filePath": "authors/$authorId.lazy.tsx"

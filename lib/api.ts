@@ -2,11 +2,31 @@ import { ColumnFiltersState, SortingState } from "@tanstack/react-table";
 import { Author } from "./types";
 
 const getURL = (endpoint: string) => {
-  return new URL(
+  return import.meta.env.DEV
+    ? new URL("/dev/" + endpoint, "http://127.0.0.1:8000")
+    : new URL(
         "/prod/" + endpoint,
         "https://j1xfrdkw06.execute-api.eu-north-1.amazonaws.com"
       );
 };
+
+export async function fetchPatronsGainById(id: string): Promise<Author[]> {
+  const response = await fetch(getURL(`patrons_gain?id=${id}`));
+  if (!response.ok) {
+    throw new Error("Network response error");
+  }
+  return response.json();
+}
+
+export async function fetchMonthlyRevenueGainById(
+  id: string
+): Promise<Author[]> {
+  const response = await fetch(getURL(`monthly_revenue_gain?id=${id}`));
+  if (!response.ok) {
+    throw new Error("Network response error");
+  }
+  return response.json();
+}
 
 export async function fetchAuthorById(id: string): Promise<Author[] | null> {
   const response = await fetch(getURL(`author?id=${id}`));
@@ -16,9 +36,13 @@ export async function fetchAuthorById(id: string): Promise<Author[] | null> {
   return response.json();
 }
 
-export async function fetchTopAuthors(): Promise<Author[] | null> {
+export async function fetchTopAuthors({
+  criteria,
+}: {
+  criteria: string;
+}): Promise<Author[] | null> {
   const response = await fetch(
-    getURL("top_authors?criteria=number_of_patrons&offset=0&limit=10")
+    getURL(`top_authors?criteria=${criteria}&offset=0&limit=10`)
   );
   if (!response.ok) {
     throw new Error("Network response error");

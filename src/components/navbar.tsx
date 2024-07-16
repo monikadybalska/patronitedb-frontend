@@ -11,7 +11,7 @@ import MenuItem from "@mui/material/MenuItem";
 import { Link } from "@tanstack/react-router";
 import Search from "./search";
 
-const pages = ["home", "charts"];
+const pages = ["home", "rankings"];
 
 export default function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(

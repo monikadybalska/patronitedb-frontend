@@ -1,4 +1,5 @@
 import { Skeleton } from "@mui/material";
+import AuthorSectionSkeleton from "./author-section";
 
 export default function AuthorPageSkeleton() {
   return (
@@ -9,12 +10,8 @@ export default function AuthorPageSkeleton() {
           height={378}
           sx={{ bgcolor: "#d13f40" }}
         />
-        <h2>Number of patrons</h2>
-        <Skeleton variant="rectangular" height={633} />
-        <h2>Monthly revenue</h2>
-        <Skeleton variant="rectangular" height={633} />
-        <h2>Total revenue</h2>
-        <Skeleton variant="rectangular" height={633} />
+        <AuthorSectionSkeleton title="Number of patrons" />
+        <AuthorSectionSkeleton title="Monthly revenue" />
       </div>
     </>
   );

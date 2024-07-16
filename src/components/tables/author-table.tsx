@@ -15,23 +15,17 @@ export default function AuthorTable({ author }: { author: Author[] }) {
       <Table aria-label="simple table">
         <TableBody>
           <TableRow>
+            <TableCell variant="head">Profile</TableCell>
+            <TableCell>
+              <a href={author[0].url}>{author[0].url}</a>
+            </TableCell>
+          </TableRow>
+          <TableRow>
             <TableCell variant="head">Patrons</TableCell>
             <TableCell>
               {author[0].number_of_patrons === -1
                 ? "Unknown"
                 : author[0].number_of_patrons.toLocaleString("en-US")}
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell variant="head">Categories</TableCell>
-            <TableCell>{author[0].tags.split(",").join(", ")}</TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell variant="head">Total revenue</TableCell>
-            <TableCell>
-              {author[0].total_revenue === -1
-                ? "Unknown"
-                : author[0].total_revenue.toLocaleString("en-US")}
             </TableCell>
           </TableRow>
           <TableRow>
@@ -41,6 +35,10 @@ export default function AuthorTable({ author }: { author: Author[] }) {
                 ? "Unknown"
                 : author[0].monthly_revenue.toLocaleString("en-US")}
             </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell variant="head">Categories</TableCell>
+            <TableCell>{author[0].tags.split(",").join(", ")}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell variant="head">Last record update</TableCell>

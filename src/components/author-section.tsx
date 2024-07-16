@@ -1,66 +1,59 @@
-import { Author, AuthorCriteria } from "../../lib/types";
+import { Author } from "../../lib/types";
 import AuthorChart from "./charts/author-chart";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { ColumnFiltersState } from "@tanstack/react-table";
 import AuthorCriterionTable from "./tables/author-criterion-table";
+import { useQuery } from "@tanstack/react-query";
+import AuthorSectionSkeleton from "./skeletons/author-section";
 
 export default function AuthorSection({
   title,
-  data,
+  id,
+  query,
   criterion,
 }: {
   title: string;
-  data: Author[];
-  criterion: keyof Pick<
-    Author,
-    "number_of_patrons" | "monthly_revenue" | "total_revenue"
-  >;
+  id: string;
+  query: (id: string) => Promise<Author[]>;
+  criterion: "number_of_patrons" | "monthly_revenue";
 }) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const renderedData = useMemo(() => {
-    if (columnFilters.length === 0) {
-      return data;
-    } else {
-      let newData = data.slice();
-      columnFilters.forEach((filter) => {
-        newData = newData.filter((snapshot) => {
-          const filterId = filter.id as keyof AuthorCriteria;
-          const filterValue = filter.value as [number, number];
-          const currentValue = snapshot[filterId];
-          return (
-            currentValue &&
-            currentValue >= filterValue[0] &&
-            currentValue <= filterValue[1]
-          );
-        });
-      });
-      return newData;
-    }
-  }, [data, columnFilters]);
+
+  const { isLoading, isError, data, error } = useQuery({
+    queryKey: ["author section", criterion, id],
+    queryFn: () => query(`https://patronite.pl/${id}`),
+  });
+
+  if (isLoading) {
+    return <AuthorSectionSkeleton title={title} />;
+  }
+
+  if (isError) {
+    return <span>Error: {error.message}</span>;
+  }
 
   return (
-    <section className="rows">
-      <h2>{title}</h2>
-      <div className="cols">
-        <div className="col">
-          <AuthorChart
-            xAxis={renderedData.map((snapshot) => snapshot.time).reverse()}
-            series={renderedData
-              .map((snapshot) =>
-                snapshot[criterion] === -1 ? null : snapshot[criterion]
-              )
-              .reverse()}
-          />
+    data && (
+      <section className="rows">
+        <h2>{title}</h2>
+        <div className="cols">
+          <div className="col">
+            <AuthorChart
+              data={data}
+              criterion={criterion}
+              columnFilters={columnFilters}
+            />
+          </div>
+          <div className="col">
+            <AuthorCriterionTable
+              data={data}
+              criterion={criterion}
+              columnFilters={columnFilters}
+              setColumnFilters={setColumnFilters}
+            />
+          </div>
         </div>
-        <div className="col">
-          <AuthorCriterionTable
-            data={data}
-            criterion={criterion}
-            columnFilters={columnFilters}
-            setColumnFilters={setColumnFilters}
-          />
-        </div>
-      </div>
-    </section>
+      </section>
+    )
   );
 }

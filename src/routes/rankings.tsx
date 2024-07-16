@@ -10,7 +10,10 @@ const Chart = function () {
   const { sortBy } = Route.useSearch();
   return (
     <>
-      <Header title="Charts" subtitle="Charts and top rankings" />
+      <Header
+        title="Rankings"
+        subtitle="Top authors by number of patrons and revenue"
+      />
       <div className="content">
         <EnhancedTable sortBy={sortBy} />
       </div>
@@ -18,7 +21,7 @@ const Chart = function () {
   );
 };
 
-export const Route = createFileRoute("/charts")({
+export const Route = createFileRoute("/rankings")({
   validateSearch: (search: Record<string, unknown>): ChartsSearch => {
     return {
       sortBy: (search.sortBy as string) || undefined,
