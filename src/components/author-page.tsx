@@ -5,7 +5,7 @@ import {
 } from "../../lib/api";
 import { useQuery } from "@tanstack/react-query";
 import AuthorSection from "./author-section";
-import AuthorTable from "./tables/author-table";
+import AuthorOverviewTable from "./tables/author-overview-table";
 import AuthorPageSkeleton from "./skeletons/author-page";
 
 export default function AuthorPage({ id }: { id: string }) {
@@ -29,7 +29,7 @@ export default function AuthorPage({ id }: { id: string }) {
           <section className="author-overview">
             <div className="col">
               <h1>{data[0].name}</h1>
-              <AuthorTable author={data} />
+              <AuthorOverviewTable author={data} />
             </div>
             <img src={data[0].image_url} className="author-page-image"></img>
           </section>

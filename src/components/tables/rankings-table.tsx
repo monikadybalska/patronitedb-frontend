@@ -33,7 +33,7 @@ export type AuthorsDataAPIResponse = {
   };
 };
 
-export default function EnhancedTable({ sortBy }: { sortBy?: string }) {
+export default function RankingsTable({ sortBy }: { sortBy?: string }) {
   const [pagination, setPagination] = useState<MRT_PaginationState>({
     pageIndex: 0,
     pageSize: 10,

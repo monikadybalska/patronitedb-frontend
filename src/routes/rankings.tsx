@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import Header from "../components/header";
-import EnhancedTable from "../components/tables/enhanced-table";
+import RankingsTable from "../components/tables/rankings-table";
 
 type ChartsSearch = {
   sortBy: string | undefined;
@@ -15,7 +15,7 @@ const Chart = function () {
         subtitle="Top authors by number of patrons and revenue"
       />
       <div className="content">
-        <EnhancedTable sortBy={sortBy} />
+        <RankingsTable sortBy={sortBy} />
       </div>
     </>
   );
