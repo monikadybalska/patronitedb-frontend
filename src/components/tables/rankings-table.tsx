@@ -64,6 +64,7 @@ export default function RankingsTable({ sortBy }: { sortBy?: string }) {
         accessorFn: (row) => row.name,
         id: "name",
         header: "Author",
+        filterVariant: "text",
         Cell: ({ renderedCellValue, row }) => (
           <>
             <Link

@@ -1,5 +1,6 @@
 import { ColumnFiltersState, SortingState } from "@tanstack/react-table";
 import { Author } from "./types";
+import { queryOptions } from "@tanstack/react-query";
 
 const getURL = (endpoint: string) => {
   return import.meta.env.DEV
@@ -28,13 +29,23 @@ export async function fetchMonthlyRevenueGainById(
   return response.json();
 }
 
-export async function fetchAuthorById(id: string): Promise<Author[] | null> {
+export async function fetchAuthorById(id: string) {
   const response = await fetch(getURL(`author?id=${id}`));
   if (!response.ok) {
     throw new Error("Network response error");
   }
-  return response.json();
+  const json: Author[] = await response.json();
+  if (json.length === 0) {
+    throw new Error("Author not found");
+  }
+  return json;
 }
+
+export const authorQueryOptions = (id: string) =>
+  queryOptions({
+    queryKey: ["author overview", id],
+    queryFn: () => fetchAuthorById(id),
+  });
 
 export async function fetchTopAuthors({
   criteria,
@@ -110,6 +121,7 @@ export async function fetchAllAuthorsData({
       `${filters["number_of_patrons"][1]}`
     );
 
+  console.log(url.href);
   const response = await fetch(url.href);
 
   if (!response.ok) {
