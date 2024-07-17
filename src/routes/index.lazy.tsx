@@ -23,7 +23,7 @@ function Index() {
             { title: "Monthly revenue", key: "monthly_revenue" },
           ]}
           query={() => fetchTopAuthors({ criteria: "number_of_patrons" })}
-          link="/charts?sortBy=number_of_patrons"
+          link="/rankings?sortBy=number_of_patrons"
         />
         <HomepageTable
           title="Trending Authors"

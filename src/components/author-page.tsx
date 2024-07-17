@@ -1,27 +1,18 @@
 import {
-  fetchAuthorById,
   fetchPatronsGainById,
   fetchMonthlyRevenueGainById,
 } from "../../lib/api";
-import { useQuery } from "@tanstack/react-query";
+import { Author } from "../../lib/types";
 import AuthorSection from "./author-section";
 import AuthorOverviewTable from "./tables/author-overview-table";
-import AuthorPageSkeleton from "./skeletons/author-page";
 
-export default function AuthorPage({ id }: { id: string }) {
-  const { isLoading, isError, data, error } = useQuery({
-    queryKey: ["author overview", id],
-    queryFn: () => fetchAuthorById(`https://patronite.pl/${id}`),
-  });
-
-  if (isLoading) {
-    return <AuthorPageSkeleton />;
-  }
-
-  if (isError) {
-    return <span>Error: {error.message}</span>;
-  }
-
+export default function AuthorPage({
+  id,
+  data,
+}: {
+  id: string;
+  data: Author[];
+}) {
   return (
     data && (
       <>
