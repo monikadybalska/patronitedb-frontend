@@ -2,7 +2,7 @@ import { Author } from "../../lib/types";
 import AuthorChart from "./charts/author-chart";
 import { useState } from "react";
 import { ColumnFiltersState } from "@tanstack/react-table";
-import AuthorCriterionTable from "./tables/author-criterion-table";
+import AuthorTable from "./tables/author-table";
 import { useQuery } from "@tanstack/react-query";
 import AuthorSectionSkeleton from "./skeletons/author-section";
 
@@ -45,7 +45,7 @@ export default function AuthorSection({
             />
           </div>
           <div className="col">
-            <AuthorCriterionTable
+            <AuthorTable
               data={data}
               criterion={criterion}
               columnFilters={columnFilters}

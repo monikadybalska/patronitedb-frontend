@@ -1,5 +1,7 @@
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
 
@@ -24,11 +26,13 @@ const theme = createTheme({
 export const Route = createRootRoute({
   component: () => (
     <ThemeProvider theme={theme}>
-      <Navbar />
-      <main>
-        <Outlet />
-      </main>
-      <Footer />
+      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
+        <Navbar />
+        <main>
+          <Outlet />
+        </main>
+        <Footer />
+      </LocalizationProvider>
     </ThemeProvider>
   ),
 });

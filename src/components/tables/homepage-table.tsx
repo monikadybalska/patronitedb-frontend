@@ -18,7 +18,10 @@ export default function HomepageTable({
   link,
 }: {
   title: string;
-  columns: { title: string; key: keyof Author }[];
+  columns: {
+    title: string;
+    key: keyof Pick<Author, "gain" | "number_of_patrons" | "monthly_revenue">;
+  }[];
   query: () => Promise<Author[] | null>;
   link?: string;
 }) {
@@ -90,7 +93,9 @@ export default function HomepageTable({
               </TableCell>
               {columns.map((column, i) => (
                 <TableCell align="right" key={i}>
-                  {row[column.key] === -1 ? "Unknown" : row[column.key]}
+                  {!row[column.key] || row[column.key] === -1
+                    ? "Unknown"
+                    : row[column.key]?.toLocaleString("en-us")}
                 </TableCell>
               ))}
             </TableRow>

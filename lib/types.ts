@@ -28,6 +28,7 @@ export type AuthorCriteria = Pick<
   | "monthly_revenue"
   | "monthly_revenue_gain"
   | "monthly_revenue_gain_percentage"
+  | "time"
 >;
 
 export type Order = "asc" | "desc";
