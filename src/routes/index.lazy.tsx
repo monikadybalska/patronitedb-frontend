@@ -15,7 +15,6 @@ function Index() {
         subtitle="This third-party website gives you better insight into Patronite and
         everything in its database."
       />
-      <div className="content">
         <HomepageTable
           title="Top Authors"
           columns={[
@@ -33,7 +32,6 @@ function Index() {
           ]}
           query={fetchTrendingAuthors}
         />
-      </div>
     </>
   );
 }

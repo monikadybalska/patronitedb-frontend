@@ -14,9 +14,7 @@ const Chart = function () {
         title="Rankings"
         subtitle="Top authors by number of patrons and revenue"
       />
-      <div className="content">
         <RankingsTable sortBy={sortBy} />
-      </div>
     </>
   );
 };

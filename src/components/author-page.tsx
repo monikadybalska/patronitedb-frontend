@@ -16,7 +16,6 @@ export default function AuthorPage({
   return (
     data && (
       <>
-        <div className="content">
           <section className="author-overview">
             <div className="col">
               <h1>{data[0].name}</h1>
@@ -36,7 +35,6 @@ export default function AuthorPage({
             query={fetchMonthlyRevenueGainById}
             criterion="monthly_revenue"
           />
-        </div>
       </>
     )
   );

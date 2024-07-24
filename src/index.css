@@ -27,6 +27,7 @@ main {
   max-width: 1536px;
   box-sizing: border-box;
   flex-grow: 1;
+  gap: 2rem;
 }
 
 h1 {
@@ -68,6 +69,7 @@ a:hover {
   box-sizing: border-box;
   width: 100%;
   color: white;
+  border-radius: 4px;
 }
 
 .content {
