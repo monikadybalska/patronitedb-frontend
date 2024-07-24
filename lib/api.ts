@@ -78,7 +78,6 @@ export async function fetchAllAuthorsData({
   sorting: SortingState;
   pageParam: number;
   pageSize: number;
-  totalRowCount: number;
   columnFilters: ColumnFiltersState;
 }): Promise<Author[]> {
   const filters: Record<string, number[]> = columnFilters.reduce(

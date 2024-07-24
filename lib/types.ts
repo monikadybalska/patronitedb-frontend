@@ -42,3 +42,10 @@ export interface EnhancedTableProps {
   orderBy: string;
   rowCount: number;
 }
+
+export type RankingsTableValue =
+  | string
+  | number
+  | null
+  | string[]
+  | { name: string; image: string };
