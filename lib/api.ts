@@ -3,34 +3,33 @@ import { Author } from "./types";
 import { queryOptions } from "@tanstack/react-query";
 
 const getURL = (endpoint: string) => {
-  return import.meta.env.DEV
-    ? new URL("/dev/" + endpoint, "http://127.0.0.1:8000")
-    : new URL(
-        "/prod/" + endpoint,
-        "https://j1xfrdkw06.execute-api.eu-north-1.amazonaws.com"
-      );
+  return new URL(endpoint, "https://patronitedb-backend.vercel.app/");
 };
 
-export async function fetchPatronsGainById(id: string): Promise<Author[]> {
-  const response = await fetch(getURL(`patrons_gain?id=${id}`));
+export async function fetchPatronsGainByUrl(url: string): Promise<Author[]> {
+  const response = await fetch(
+    getURL(`gain?criterion=number_of_patrons&url=${url}`)
+  );
   if (!response.ok) {
     throw new Error("Network response error");
   }
   return response.json();
 }
 
-export async function fetchMonthlyRevenueGainById(
-  id: string
+export async function fetchMonthlyRevenueGainByUrl(
+  url: string
 ): Promise<Author[]> {
-  const response = await fetch(getURL(`monthly_revenue_gain?id=${id}`));
+  const response = await fetch(
+    getURL(`gain?criterion=monthly_revenue&url=${url}`)
+  );
   if (!response.ok) {
     throw new Error("Network response error");
   }
   return response.json();
 }
 
-export async function fetchAuthorById(id: string) {
-  const response = await fetch(getURL(`author?id=${id}`));
+export async function fetchAuthorByUrl(url: string) {
+  const response = await fetch(getURL(`author?url=${url}`));
   if (!response.ok) {
     throw new Error("Network response error");
   }
@@ -41,10 +40,10 @@ export async function fetchAuthorById(id: string) {
   return json;
 }
 
-export const authorQueryOptions = (id: string) =>
+export const authorQueryOptions = (url: string) =>
   queryOptions({
-    queryKey: ["author overview", id],
-    queryFn: () => fetchAuthorById(id),
+    queryKey: ["author overview", url],
+    queryFn: () => fetchAuthorByUrl(url),
   });
 
 export async function fetchTopAuthors({
@@ -53,7 +52,7 @@ export async function fetchTopAuthors({
   criteria: string;
 }): Promise<Author[] | null> {
   const response = await fetch(
-    getURL(`top_authors?criteria=${criteria}&offset=0&limit=10`)
+    getURL(`top_authors?criterion=${criteria}&offset=0&limit=10`)
   );
   if (!response.ok) {
     throw new Error("Network response error");
@@ -62,7 +61,9 @@ export async function fetchTopAuthors({
 }
 
 export async function fetchTrendingAuthors(): Promise<Author[] | null> {
-  const response = await fetch(getURL("trending_authors"));
+  const response = await fetch(
+    getURL("trending_authors?criterion=number_of_patrons")
+  );
   if (!response.ok) {
     throw new Error("Network response error");
   }
@@ -88,7 +89,7 @@ export async function fetchAllAuthorsData({
   const url = getURL("top_authors");
   filters["name"] &&
     url.searchParams.set("name", `${filters["name"].toString().toLowerCase()}`);
-  sorting.length > 0 && url.searchParams.set("criteria", `${sorting[0].id}`);
+  sorting.length > 0 && url.searchParams.set("criterion", `${sorting[0].id}`);
   sorting.length > 0 &&
     url.searchParams.set("order", sorting[0].desc ? "desc" : "asc");
   url.searchParams.set("offset", `${pageParam * pageSize}`);
@@ -132,7 +133,7 @@ export async function fetchAllAuthorsData({
 export async function fetchAllAuthors(): Promise<
   Pick<Author, "name" | "url">[]
 > {
-  const response = await fetch(getURL("metadata/authors"));
+  const response = await fetch(getURL("/authors"));
   if (!response.ok) {
     throw new Error("Network response error");
   }
@@ -149,7 +150,7 @@ export async function fetchNumberofAuthors({
       Object.assign(accumulator, { [currentValue.id]: currentValue.value }),
     {}
   );
-  const url = getURL("metadata/row_count");
+  const url = getURL("/row_count");
   filters["name"] && url.searchParams.set("name", `${filters["name"]}`);
   filters["tags"] &&
     url.searchParams.set("tags", `${filters["tags"].join(",")}`);
@@ -183,12 +184,12 @@ export async function fetchNumberofAuthors({
   if (!response.ok) {
     throw new Error("Network response error");
   }
-  const json: number = await response.json();
-  return json;
+  const json: string[] = await response.json();
+  return json.length;
 }
 
 export async function fetchAllCategories(): Promise<string[]> {
-  const response = await fetch(getURL("metadata/tags"));
+  const response = await fetch(getURL("categories"));
   if (!response.ok) {
     throw new Error("Network response error");
   }
@@ -196,7 +197,7 @@ export async function fetchAllCategories(): Promise<string[]> {
 }
 
 export async function fetchMinMax(): Promise<Record<string, number>> {
-  const response = await fetch(getURL("metadata/min_max"));
+  const response = await fetch(getURL("min_max"));
   if (!response.ok) {
     throw new Error("Network response error");
   }

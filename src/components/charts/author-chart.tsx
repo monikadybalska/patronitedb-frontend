@@ -1,5 +1,5 @@
 import { LineChart } from "@mui/x-charts/LineChart";
-import { Author, AuthorCriteria } from "../../../lib/types";
+import { Author, AuthorCriteria } from "../../../lib/types.ts";
 import { useMemo } from "react";
 import { ColumnFiltersState } from "@tanstack/react-table";
 import { Dayjs } from "dayjs";

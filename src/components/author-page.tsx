@@ -1,6 +1,6 @@
 import {
-  fetchPatronsGainById,
-  fetchMonthlyRevenueGainById,
+  fetchPatronsGainByUrl,
+  fetchMonthlyRevenueGainByUrl,
 } from "../../lib/api";
 import { Author } from "../../lib/types";
 import AuthorSection from "./author-section";
@@ -16,25 +16,25 @@ export default function AuthorPage({
   return (
     data && (
       <>
-          <section className="author-overview">
-            <div className="col">
-              <h1>{data[0].name}</h1>
-              <AuthorOverviewTable author={data} />
-            </div>
-            <img src={data[0].image_url} className="author-page-image"></img>
-          </section>
-          <AuthorSection
-            title="Number of patrons"
-            id={id}
-            query={fetchPatronsGainById}
-            criterion="number_of_patrons"
-          />
-          <AuthorSection
-            title="Monthly revenue"
-            id={id}
-            query={fetchMonthlyRevenueGainById}
-            criterion="monthly_revenue"
-          />
+        <section className="author-overview">
+          <div className="col">
+            <h1>{data[0].name}</h1>
+            <AuthorOverviewTable author={data} />
+          </div>
+          <img src={data[0].image_url} className="author-page-image"></img>
+        </section>
+        <AuthorSection
+          title="Number of patrons"
+          id={id}
+          query={fetchPatronsGainByUrl}
+          criterion="number_of_patrons"
+        />
+        <AuthorSection
+          title="Monthly revenue"
+          id={id}
+          query={fetchMonthlyRevenueGainByUrl}
+          criterion="monthly_revenue"
+        />
       </>
     )
   );
