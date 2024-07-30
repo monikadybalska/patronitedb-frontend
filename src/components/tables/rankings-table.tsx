@@ -30,9 +30,9 @@ export default function RankingsTable({ sortBy }: { sortBy?: string }) {
     pageIndex: 0,
     pageSize: 10,
   });
-  const [sorting, setSorting] = useState<MRT_SortingState>(
-    sortBy ? [{ id: sortBy, desc: true }] : []
-  );
+  const [sorting, setSorting] = useState<MRT_SortingState>([
+    { id: sortBy || "number_of_patrons", desc: true },
+  ]);
   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
     []
   );
