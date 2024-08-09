@@ -10,24 +10,43 @@ import { Author } from "../../../lib/types";
 import { Link } from "@tanstack/react-router";
 import { East } from "@mui/icons-material";
 import TableBodySkeleton from "../skeletons/table-body";
+import SelectCriterion from "./select-criterion";
+import { SelectChangeEvent } from "@mui/material";
+import { useMemo, useState } from "react";
+import { fetchTrendingAuthors } from "../../../lib/api";
 
-export default function HomepageTable({
+export default function TrendingAuthorsTable({
   title,
-  columns,
-  query,
   link,
 }: {
   title: string;
-  columns: {
-    title: string;
-    key: keyof Pick<Author, "gain" | "number_of_patrons" | "monthly_revenue">;
-  }[];
-  query: () => Promise<Author[] | null>;
   link?: string;
 }) {
+  const [criterion, setCriterion] = useState<
+    "number_of_patrons" | "monthly_revenue"
+  >("number_of_patrons");
+
+  const columns = useMemo(
+    (): { title: string; key: keyof Author }[] => [
+      {
+        title:
+          criterion === "number_of_patrons"
+            ? "Patrons total"
+            : "Monthly revenue",
+        key: criterion,
+      },
+      { title: "7-day gain", key: "gain" },
+    ],
+    [criterion]
+  );
+
+  const handleChange = (event: SelectChangeEvent) => {
+    setCriterion(event.target.value as "number_of_patrons" | "monthly_revenue");
+  };
+
   const { isPending, isLoading, isError, data, error } = useQuery({
-    queryKey: [`${query}`],
-    queryFn: query,
+    queryKey: ["trending authors", criterion],
+    queryFn: () => fetchTrendingAuthors({ criterion }),
   });
 
   if (isError) {
@@ -63,6 +82,10 @@ export default function HomepageTable({
               ) : (
                 <>{title}</>
               )}
+              <SelectCriterion
+                criterion={criterion}
+                handleChange={handleChange}
+              />
             </TableCell>
             {columns.map((column) => (
               <TableCell align="right" key={column.title}>

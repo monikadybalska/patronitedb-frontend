@@ -60,9 +60,13 @@ export async function fetchTopAuthors({
   return response.json();
 }
 
-export async function fetchTrendingAuthors(): Promise<Author[] | null> {
+export async function fetchTrendingAuthors({
+  criterion,
+}: {
+  criterion: "number_of_patrons" | "monthly_revenue";
+}): Promise<Author[] | null> {
   const response = await fetch(
-    getURL("trending_authors?criterion=number_of_patrons")
+    getURL(`trending_authors?criterion=${criterion}`)
   );
   if (!response.ok) {
     throw new Error("Network response error");
@@ -121,7 +125,6 @@ export async function fetchAllAuthorsData({
       `${filters["number_of_patrons"][1]}`
     );
 
-  console.log(url.href);
   const response = await fetch(url.href);
 
   if (!response.ok) {
