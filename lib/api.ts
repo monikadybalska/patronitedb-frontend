@@ -3,7 +3,7 @@ import { Author } from "./types";
 import { queryOptions } from "@tanstack/react-query";
 
 const getURL = (endpoint: string) => {
-  return new URL(endpoint, "https://patronitedb-backend.vercel.app/");
+  return new URL(endpoint, "https://patronitedb-api.vercel.app/");
 };
 
 export async function fetchPatronsGainByUrl(url: string): Promise<Author[]> {
