@@ -3,7 +3,8 @@ import { Author } from "./types";
 import { queryOptions } from "@tanstack/react-query";
 
 const getURL = (endpoint: string) => {
-  return new URL(endpoint, "https://patronitedb-api.vercel.app/");
+  // return new URL(endpoint, "https://patronitedb-api.vercel.app/");
+  return new URL(endpoint, "http://localhost:3000/");
 };
 
 export async function fetchPatronsGainByUrl(url: string): Promise<Author[]> {
@@ -62,12 +63,17 @@ export async function fetchTopAuthors({
 
 export async function fetchTrendingAuthors({
   criterion,
+  days,
+  sort,
 }: {
-  criterion: "number_of_patrons" | "monthly_revenue";
+  criterion: keyof Author;
+  days: number;
+  sort: "desc" | "asc";
 }): Promise<Author[] | null> {
-  const response = await fetch(
-    getURL(`trending_authors?criterion=${criterion}`)
+  const url = getURL(
+    `trending_authors?criterion=${criterion}&days=${days}&order=${sort}`
   );
+  const response = await fetch(url);
   if (!response.ok) {
     throw new Error("Network response error");
   }

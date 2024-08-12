@@ -197,6 +197,12 @@ footer {
   display: none;
 }
 
+.row-with-options {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 @media screen and (max-width: 900px) {
   .icon {
     display: none;

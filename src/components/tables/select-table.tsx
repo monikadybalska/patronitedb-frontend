@@ -1,29 +1,35 @@
 import Box from "@mui/material/Box";
-import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 
-export default function SelectCriterion({
-  criterion,
+export default function SelectTable({
+  value,
+  name,
+  options,
   handleChange,
 }: {
-  criterion: "number_of_patrons" | "monthly_revenue";
+  value: string;
+  name: string;
+  options: { value: string; title: string }[];
   handleChange: (event: SelectChangeEvent) => void;
 }) {
   return (
-    <Box sx={{ minWidth: 120 }}>
-      <FormControl fullWidth>
-        <InputLabel id="demo-simple-select-label">By</InputLabel>
+    <Box sx={{ width: "fit-content" }}>
+      <FormControl>
         <Select
           labelId="demo-simple-select-label"
           id="demo-simple-select"
-          value={criterion}
-          label="By"
+          value={value}
+          name={name}
           onChange={handleChange}
+          sx={{ fontSize: "1rem" }}
         >
-          <MenuItem value="number_of_patrons">Number of patrons</MenuItem>
-          <MenuItem value="monthly_revenue">Monthly revenue</MenuItem>
+          {options.map((option) => (
+            <MenuItem value={option.value} key={option.value}>
+              {option.title}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
     </Box>

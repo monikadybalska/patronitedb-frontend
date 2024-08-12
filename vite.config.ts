@@ -8,14 +8,14 @@ export default defineConfig(({ command }) => {
       base: "/",
       plugins: [react(), TanStackRouterVite()],
       preview: {
-        port: 3000,
+        port: 5173,
         strictPort: true,
       },
       server: {
-        port: 3000,
+        port: 5173,
         strictPort: true,
         host: true,
-        origin: "http://0.0.0.0:80/3000",
+        origin: "http://0.0.0.0:80/5173",
       },
     };
   } else {
