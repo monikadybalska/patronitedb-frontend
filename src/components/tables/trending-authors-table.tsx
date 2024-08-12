@@ -8,45 +8,41 @@ import Paper from "@mui/material/Paper";
 import { useQuery } from "@tanstack/react-query";
 import { Author } from "../../../lib/types";
 import { Link } from "@tanstack/react-router";
-import { East } from "@mui/icons-material";
 import TableBodySkeleton from "../skeletons/table-body";
-import SelectCriterion from "./select-criterion";
 import { SelectChangeEvent } from "@mui/material";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { fetchTrendingAuthors } from "../../../lib/api";
+import SelectTable from "./select-table";
 
-export default function TrendingAuthorsTable({
-  title,
-  link,
-}: {
-  title: string;
-  link?: string;
-}) {
-  const [criterion, setCriterion] = useState<
-    "number_of_patrons" | "monthly_revenue"
-  >("number_of_patrons");
-
-  const columns = useMemo(
-    (): { title: string; key: keyof Author }[] => [
-      {
-        title:
-          criterion === "number_of_patrons"
-            ? "Patrons total"
-            : "Monthly revenue",
-        key: criterion,
-      },
-      { title: "7-day gain", key: "gain" },
-    ],
-    [criterion]
-  );
+export default function TrendingAuthorsTable({ title }: { title: string }) {
+  const [columns, setColumns] = useState<{
+    sort: "desc" | "asc";
+    criterion: keyof Author;
+    gain: string;
+  }>({
+    sort: "desc",
+    criterion: "number_of_patrons",
+    gain: "7",
+  });
 
   const handleChange = (event: SelectChangeEvent) => {
-    setCriterion(event.target.value as "number_of_patrons" | "monthly_revenue");
+    console.log(event.target.value);
+    setColumns((current) => {
+      return {
+        ...current,
+        [event.target.name]: event.target.value,
+      };
+    });
   };
 
   const { isPending, isLoading, isError, data, error } = useQuery({
-    queryKey: ["trending authors", criterion],
-    queryFn: () => fetchTrendingAuthors({ criterion }),
+    queryKey: ["trending authors", columns],
+    queryFn: () =>
+      fetchTrendingAuthors({
+        criterion: columns.criterion,
+        days: parseInt(columns.gain),
+        sort: columns.sort,
+      }),
   });
 
   if (isError) {
@@ -64,73 +60,105 @@ export default function TrendingAuthorsTable({
     >
       <Table aria-label="simple table">
         <TableHead>
-          <TableRow>
+          <TableRow sx={{ height: "fit-content", width: "100%" }}>
             <TableCell
               sx={{
                 fontSize: "1.5rem",
                 color: "text.secondary",
-                display: "flex",
-                alignItems: "center",
-                gap: "1rem",
               }}
             >
-              {link ? (
-                <Link to={link} style={{ display: "flex" }}>
-                  {title}
-                  <East sx={{ pl: 1 }} />
-                </Link>
-              ) : (
-                <>{title}</>
-              )}
-              <SelectCriterion
-                criterion={criterion}
+              <div className="row-with-options">
+                {title}
+                <SelectTable
+                  value={columns.sort}
+                  name="sort"
+                  options={[
+                    { value: "desc", title: "Upwards" },
+                    { value: "asc", title: "Downwards" },
+                  ]}
+                  handleChange={handleChange}
+                />
+              </div>
+            </TableCell>
+            <TableCell
+              align="right"
+              key={columns.criterion}
+              sx={{ width: "131px" }}
+            >
+              <SelectTable
+                value={columns.criterion}
+                name="criterion"
+                options={[
+                  { value: "number_of_patrons", title: "Total patrons" },
+                  { value: "monthly_revenue", title: "Monthly revenue" },
+                ]}
                 handleChange={handleChange}
               />
             </TableCell>
-            {columns.map((column) => (
-              <TableCell align="right" key={column.title}>
-                {column.title}
-              </TableCell>
-            ))}
+            <TableCell align="right" key="gain" sx={{ width: "131px" }}>
+              <SelectTable
+                value={columns.gain}
+                name="gain"
+                options={[
+                  { value: "7", title: "Last 7 days" },
+                  { value: "14", title: "Last 14 days" },
+                ]}
+                handleChange={handleChange}
+              />
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {(isLoading || isPending) && <TableBodySkeleton />}
-          {data?.map((row) => (
-            <TableRow
-              sx={{
-                "&:last-child td, &:last-child th": { border: 0 },
-                ":hover": { backgroundColor: "#e5e5e5" },
-                position: "relative",
-              }}
-              key={row.name}
-            >
-              <TableCell
-                component="th"
-                scope="row"
+          {data && data.length > 0 ? (
+            data.map((row) => (
+              <TableRow
                 sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "1rem",
-                  padding: 0,
+                  "&:last-child td, &:last-child th": { border: 0 },
+                  ":hover": { backgroundColor: "#e5e5e5" },
+                  position: "relative",
                 }}
+                key={row.name}
               >
-                <Link
-                  to={`/authors/${row.url.split("/").slice(-1)[0]}`}
-                  className="row-link"
-                ></Link>
-                <img src={row.image_url} className="row-image"></img>
-                <p className="title-cell">{row.name}</p>
-              </TableCell>
-              {columns.map((column, i) => (
-                <TableCell align="right" key={i}>
-                  {!row[column.key] || row[column.key] === -1
-                    ? "Unknown"
-                    : row[column.key]?.toLocaleString("en-us")}
+                <TableCell
+                  component="th"
+                  scope="row"
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "1rem",
+                    padding: 0,
+                  }}
+                >
+                  <Link
+                    to={`/authors/${row.url.split("/").slice(-1)[0]}`}
+                    className="row-link"
+                  ></Link>
+                  <img src={row.image_url} className="row-image"></img>
+                  <p className="title-cell">{row.name}</p>
                 </TableCell>
-              ))}
+                <TableCell align="right">
+                  {!row[columns.criterion] || row[columns.criterion] === -1
+                    ? "Unknown"
+                    : row[columns.criterion]?.toLocaleString("en-us")}
+                </TableCell>
+                <TableCell
+                  align="right"
+                  sx={{ color: columns.sort === "desc" ? "green" : "red" }}
+                >
+                  {columns.sort === "desc" && "+"}
+                  {!row.gain ? "Unknown" : row.gain?.toLocaleString("en-us")}
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell>
+                No data for the selected period. Select a different period or
+                try again later.
+              </TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
     </TableContainer>
